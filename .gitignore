@@ -1,0 +1,7 @@
+/Library
+/Logs
+/Temp
+/obj
+/.vscode
+Assembly-CSharp.csproj
+Rocket.sln
