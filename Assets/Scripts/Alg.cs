@@ -34,22 +34,22 @@ public static class Alg
         }
 
         // init red
-        for (int j = 0; j < board.height; j++)
-        {
-            Cell cell = board.At(board.width - 1, j);
-            if (cell.shape.GetSettings().linkedR)
-            {
-                cell.red = true;
-            }
-        }
-        for (int j = 0; j < board.height; j++)
-        {
-            Cell cell = board.At(board.width - 1, j);
-            if (cell.red)
-            {
-                Propagate(board, cell, false);
-            }
-        }
+        // for (int j = 0; j < board.height; j++)
+        // {
+        //     Cell cell = board.At(board.width - 1, j);
+        //     if (cell.shape.GetSettings().linkedR)
+        //     {
+        //         cell.red = true;
+        //     }
+        // }
+        // for (int j = 0; j < board.height; j++)
+        // {
+        //     Cell cell = board.At(board.width - 1, j);
+        //     if (cell.red)
+        //     {
+        //         Propagate(board, cell, false);
+        //     }
+        // }
     }
 
     static void Propagate(Board board, Cell center, bool isYellow)

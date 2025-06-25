@@ -1,8 +1,9 @@
 using UnityEngine;
 
-public class CBootstrap : MonoBehaviour
+public class Bootstrap : MonoBehaviour
 {
-    public CGame game;
+    public GamePanel gamePanel;
+    public CBoard board;
     void Awake()
     {
         sc.bootstrap = this;

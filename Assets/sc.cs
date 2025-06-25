@@ -1,5 +1,5 @@
 public static class sc
 {
-    public static CBootstrap bootstrap;
+    public static Bootstrap bootstrap;
     public static ConfigManager configManager;
 }
