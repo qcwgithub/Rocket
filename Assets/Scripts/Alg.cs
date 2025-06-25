@@ -34,22 +34,22 @@ public static class Alg
         }
 
         // init red
-        // for (int j = 0; j < board.height; j++)
-        // {
-        //     Cell cell = board.At(board.width - 1, j);
-        //     if (cell.shape.GetSettings().linkedR)
-        //     {
-        //         cell.red = true;
-        //     }
-        // }
-        // for (int j = 0; j < board.height; j++)
-        // {
-        //     Cell cell = board.At(board.width - 1, j);
-        //     if (cell.red)
-        //     {
-        //         Propagate(board, cell, false);
-        //     }
-        // }
+        for (int j = 0; j < board.height; j++)
+        {
+            Cell cell = board.At(board.width - 1, j);
+            if (cell.shape.GetSettings().linkedR)
+            {
+                cell.red = true;
+            }
+        }
+        for (int j = 0; j < board.height; j++)
+        {
+            Cell cell = board.At(board.width - 1, j);
+            if (cell.red)
+            {
+                Propagate(board, cell, false);
+            }
+        }
     }
 
     static void Propagate(Board board, Cell center, bool isYellow)
@@ -75,8 +75,18 @@ public static class Alg
                 {
                     continue;
                 }
-                cell.yellow = true;
-                Propagate(board, cell, isYellow);
+
+                foreach (Vector2Int offset2 in cell.shape.GetSettings().linkedOffsets)
+                {
+                    if (offset2 == -offset)
+                    {
+                        UnityEngine.Debug.Log($"{center.x},{center.y}->{cell.x} {cell.y}");
+                        cell.yellow = true;
+                        Propagate(board, cell, isYellow);
+
+                        break;
+                    }
+                }
             }
             else
             {
@@ -84,8 +94,18 @@ public static class Alg
                 {
                     continue;
                 }
-                cell.red = true;
-                Propagate(board, cell, isYellow);
+
+                foreach (Vector2Int offset2 in cell.shape.GetSettings().linkedOffsets)
+                {
+                    if (offset2 == -offset)
+                    {
+                        UnityEngine.Debug.Log($"{center.x},{center.y}->{cell.x} {cell.y}");
+                        cell.red = true;
+                        Propagate(board, cell, isYellow);
+
+                        break;
+                    }
+                }
             }
         }
     }
