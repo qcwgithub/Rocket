@@ -29,7 +29,7 @@ public static class Alg
             CellData cell = boardData.At(0, j);
             if (cell.yellow)
             {
-                Propagate(boardData, cell, true);
+                Propagate(boardData, 0, j, true);
             }
         }
 
@@ -47,22 +47,23 @@ public static class Alg
             CellData cell = boardData.At(boardData.width - 1, j);
             if (cell.red)
             {
-                Propagate(boardData, cell, false);
+                Propagate(boardData, boardData.width - 1, j, false);
             }
         }
     }
 
-    static void Propagate(BoardData boardData, CellData center, bool isYellow)
+    static void Propagate(BoardData boardData, int center_x, int center_y, bool isYellow)
     {
+        CellData center = boardData.At(center_x, center_y);
         foreach (Vector2Int offset in center.shape.GetSettings().linkedOffsets)
         {
-            int x = center.x + offset.x;
+            int x = center_x + offset.x;
             if (x < 0 || x >= boardData.width)
             {
                 continue;
             }
 
-            int y = center.y + offset.y;
+            int y = center_y + offset.y;
             if (y < 0 || y >= boardData.height)
             {
                 continue;
@@ -80,9 +81,9 @@ public static class Alg
                 {
                     if (offset2 == -offset)
                     {
-                        UnityEngine.Debug.Log($"{center.x},{center.y}->{cell.x} {cell.y}");
+                        // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
                         cell.yellow = true;
-                        Propagate(boardData, cell, isYellow);
+                        Propagate(boardData, x, y, isYellow);
 
                         break;
                     }
@@ -99,9 +100,9 @@ public static class Alg
                 {
                     if (offset2 == -offset)
                     {
-                        UnityEngine.Debug.Log($"{center.x},{center.y}->{cell.x} {cell.y}");
+                        // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
                         cell.red = true;
-                        Propagate(boardData, cell, isYellow);
+                        Propagate(boardData, x, y, isYellow);
 
                         break;
                     }

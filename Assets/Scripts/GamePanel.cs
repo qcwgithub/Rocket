@@ -6,7 +6,7 @@ public class GamePanel : MonoBehaviour
 {
     void Start()
     {
-        this.OnClickStart();   
+        this.OnClickStart();
     }
 
     public void OnClickStart()
@@ -21,12 +21,10 @@ public class GamePanel : MonoBehaviour
             for (int y = 0; y < levelConfig.height; y++)
             {
                 CellData cell = boardData.At(x, y);
-                cell.x = x;
-                cell.y = y;
                 cell.shape = (Shape)random.Next(0, (int)Shape.Count);
             }
         }
 
-        sc.bootstrap.board.Init(boardData);
+        sc.board.Init(boardData);
     }
 }

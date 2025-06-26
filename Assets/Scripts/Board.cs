@@ -40,7 +40,7 @@ public class Board : MonoBehaviour
                 Cell cell = this.cells[i, j] = this.transform.GetChild(index++).GetComponent<Cell>();
                 cell.gameObject.SetActive(true);
                 // cell.gameObject.name = $"({i},{j})";
-                cell.Init(boardData.At(i, j));
+                cell.Init(boardData.At(i, j), i, j, CellState.Still);
 
                 cell.transform.position = new Vector3(
                     -boardData.width * 0.5f + 0.5f + i,
@@ -52,32 +52,7 @@ public class Board : MonoBehaviour
         this.RefreshColors();
     }
 
-    void Update()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            // Debug.Log(mousePos);
-
-            float x = mousePos.x;
-            float y = mousePos.y;
-            if (x > -this.boardData.width * 0.5f && x < this.boardData.width * 0.5f)
-            {
-                if (y > -this.boardData.height * 0.5f && y < this.boardData.height * 0.5f)
-                {
-                    int i = (int)(x - -this.boardData.width * 0.5f);
-                    int j = (int)(y - -this.boardData.height * 0.5f);
-                    // Debug.Log($"({i},{j})");
-                    CellData cell = this.boardData.At(i, j);
-                    cell.shape = cell.shape.GetSettings().rotateCCW;
-                    this.At(i, j).ApplyShape();
-                    this.RefreshColors();
-                }
-            }
-        }
-    }
-
-    void RefreshColors()
+    public void RefreshColors()
     {
         Alg.RefreshColor(this.boardData);
         for (int i = 0; i < boardData.width; i++)
@@ -87,5 +62,11 @@ public class Board : MonoBehaviour
                 this.At(i, j).ApplyColor();
             }
         }
+    }
+
+    public void OnClick(int x, int y, ClickAction action)
+    {
+        Cell cell = this.At(x, y);
+        cell.OnClick(action);
     }
 }
