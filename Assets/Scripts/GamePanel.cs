@@ -14,19 +14,19 @@ public class GamePanel : MonoBehaviour
         var random = new System.Random(1);
 
         LevelConfig levelConfig = sc.configManager.GetLevelConfig(1);
-        Board board = new Board(levelConfig.width, levelConfig.height);
+        var boardData = new BoardData(levelConfig.width, levelConfig.height);
 
         for (int x = 0; x < levelConfig.width; x++)
         {
             for (int y = 0; y < levelConfig.height; y++)
             {
-                Cell cell = board.At(x, y);
+                CellData cell = boardData.At(x, y);
                 cell.x = x;
                 cell.y = y;
                 cell.shape = (Shape)random.Next(0, (int)Shape.Count);
             }
         }
 
-        sc.bootstrap.board.Init(board);
+        sc.bootstrap.board.Init(boardData);
     }
 }

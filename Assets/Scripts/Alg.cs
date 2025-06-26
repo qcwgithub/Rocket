@@ -2,73 +2,73 @@ using UnityEngine;
 
 public static class Alg
 {
-    public static void RefreshColor(Board board)
+    public static void RefreshColor(BoardData boardData)
     {
         // reset
-        for (int i = 0; i < board.width; i++)
+        for (int i = 0; i < boardData.width; i++)
         {
-            for (int j = 0; j < board.height; j++)
+            for (int j = 0; j < boardData.height; j++)
             {
-                Cell cell = board.At(i, j);
+                CellData cell = boardData.At(i, j);
                 cell.yellow = false;
                 cell.red = false;
             }
         }
 
         // init yellow
-        for (int j = 0; j < board.height; j++)
+        for (int j = 0; j < boardData.height; j++)
         {
-            Cell cell = board.At(0, j);
+            CellData cell = boardData.At(0, j);
             if (cell.shape.GetSettings().linkedL)
             {
                 cell.yellow = true;
             }
         }
-        for (int j = 0; j < board.height; j++)
+        for (int j = 0; j < boardData.height; j++)
         {
-            Cell cell = board.At(0, j);
+            CellData cell = boardData.At(0, j);
             if (cell.yellow)
             {
-                Propagate(board, cell, true);
+                Propagate(boardData, cell, true);
             }
         }
 
         // init red
-        for (int j = 0; j < board.height; j++)
+        for (int j = 0; j < boardData.height; j++)
         {
-            Cell cell = board.At(board.width - 1, j);
+            CellData cell = boardData.At(boardData.width - 1, j);
             if (cell.shape.GetSettings().linkedR)
             {
                 cell.red = true;
             }
         }
-        for (int j = 0; j < board.height; j++)
+        for (int j = 0; j < boardData.height; j++)
         {
-            Cell cell = board.At(board.width - 1, j);
+            CellData cell = boardData.At(boardData.width - 1, j);
             if (cell.red)
             {
-                Propagate(board, cell, false);
+                Propagate(boardData, cell, false);
             }
         }
     }
 
-    static void Propagate(Board board, Cell center, bool isYellow)
+    static void Propagate(BoardData boardData, CellData center, bool isYellow)
     {
         foreach (Vector2Int offset in center.shape.GetSettings().linkedOffsets)
         {
             int x = center.x + offset.x;
-            if (x < 0 || x >= board.width)
+            if (x < 0 || x >= boardData.width)
             {
                 continue;
             }
 
             int y = center.y + offset.y;
-            if (y < 0 || y >= board.height)
+            if (y < 0 || y >= boardData.height)
             {
                 continue;
             }
 
-            Cell cell = board.At(x, y);
+            CellData cell = boardData.At(x, y);
             if (isYellow)
             {
                 if (cell.yellow)
@@ -82,7 +82,7 @@ public static class Alg
                     {
                         UnityEngine.Debug.Log($"{center.x},{center.y}->{cell.x} {cell.y}");
                         cell.yellow = true;
-                        Propagate(board, cell, isYellow);
+                        Propagate(boardData, cell, isYellow);
 
                         break;
                     }
@@ -101,7 +101,7 @@ public static class Alg
                     {
                         UnityEngine.Debug.Log($"{center.x},{center.y}->{cell.x} {cell.y}");
                         cell.red = true;
-                        Propagate(board, cell, isYellow);
+                        Propagate(boardData, cell, isYellow);
 
                         break;
                     }

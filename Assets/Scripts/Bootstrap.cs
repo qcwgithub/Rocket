@@ -3,7 +3,7 @@ using UnityEngine;
 public class Bootstrap : MonoBehaviour
 {
     public GamePanel gamePanel;
-    public CBoard board;
+    public Board board;
     void Awake()
     {
         sc.bootstrap = this;
