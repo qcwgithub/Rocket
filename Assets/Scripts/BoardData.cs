@@ -1,10 +1,10 @@
 public class BoardData
 {
-    public readonly int width;
-    public readonly int height;
-    public readonly CellData[,] cells;
+    public int width;
+    public int height;
+    public CellData[,] cells;
 
-    public BoardData(int width, int height)
+    public void Init(int width, int height)
     {
         this.width = width;
         this.height = height;

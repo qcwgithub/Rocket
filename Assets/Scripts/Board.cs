@@ -4,7 +4,6 @@ using UnityEngine.EventSystems;
 
 public class Board : MonoBehaviour
 {
-    public BoardData boardData;
     public Cell cellTemplate;
     // List<CCell> children = new List<CCell>();
     Cell[,] cells;
@@ -14,6 +13,7 @@ public class Board : MonoBehaviour
         return this.cells[x, y];
     }
 
+    public BoardData boardData;
     public void Init(BoardData boardData)
     {
         this.boardData = boardData;
@@ -40,7 +40,7 @@ public class Board : MonoBehaviour
                 Cell cell = this.cells[i, j] = this.transform.GetChild(index++).GetComponent<Cell>();
                 cell.gameObject.SetActive(true);
                 // cell.gameObject.name = $"({i},{j})";
-                cell.Init(boardData.At(i, j), i, j, CellState.Still);
+                cell.Init(boardData, i, j, CellState.Still);
 
                 cell.transform.position = new Vector3(
                     -boardData.width * 0.5f + 0.5f + i,
@@ -54,7 +54,6 @@ public class Board : MonoBehaviour
 
     public void RefreshColors()
     {
-        Alg.RefreshColor(this.boardData);
         for (int i = 0; i < boardData.width; i++)
         {
             for (int j = 0; j < boardData.height; j++)
@@ -62,11 +61,5 @@ public class Board : MonoBehaviour
                 this.At(i, j).ApplyColor();
             }
         }
-    }
-
-    public void OnClick(int x, int y, ClickAction action)
-    {
-        Cell cell = this.At(x, y);
-        cell.OnClick(action);
     }
 }

@@ -148,6 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 082d94668c3b85d45add776839bb2eea, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  board: {fileID: 1534934819}
 --- !u!4 &411014449
 Transform:
   m_ObjectHideFlags: 0
@@ -424,6 +425,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 745776870}
+  x: 0
+  y: 0
   state: 0
 --- !u!1 &1448246191
 GameObject:
@@ -788,7 +791,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gamePanel: {fileID: 1448246193}
   game: {fileID: 411014448}
-  board: {fileID: 1534934819}
 --- !u!4 &1984214474
 Transform:
   m_ObjectHideFlags: 0

@@ -4,63 +4,51 @@ using UnityEngine;
 public class Cell : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
-    public CellData cell;
+    public BoardData boardData;
     public int x;
     public int y;
     public CellState state;
-    public void Init(CellData cell, int x, int y, CellState state)
+    public void Init(BoardData boardData, int x, int y, CellState state)
     {
-        this.cell = cell;
+        this.boardData = boardData;
         this.x = x;
         this.y = y;
         this.state = state;
         // this.name = $"({cell.x},{cell.y}) {cell.shape}";
+        this.ApplyName();
 
         this.ApplyShape();
     }
 
+    void ApplyName()
+    {
+        this.name = $"({this.x},{this.y}) {this.boardData.At(this.x, this.y).shape}";
+    }
+
     public void ApplyShape()
     {
-        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/" + cell.shape);
+        CellData cellData = this.boardData.At(this.x, this.y);
+        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/" + cellData.shape);
     }
 
     public void ApplyColor()
     {
-        if (this.cell.green)
+        CellData cellData = this.boardData.At(this.x, this.y);
+        if (cellData.green)
         {
             this.spriteRenderer.color = Color.green;
         }
-        else if (this.cell.yellow)
+        else if (cellData.yellow)
         {
             this.spriteRenderer.color = Color.yellow;
         }
-        else if (this.cell.red)
+        else if (cellData.red)
         {
             this.spriteRenderer.color = Color.red;
         }
         else
         {
             this.spriteRenderer.color = Color.white;
-        }
-    }
-
-    public void OnClick(ClickAction action)
-    {
-        switch (this.state)
-        {
-            case CellState.Falling:
-                break;
-            case CellState.Still:
-            case CellState.Warn:
-                {
-                    this.cell.shape = this.cell.shape.GetSettings().rotateCCW;
-                    this.ApplyShape();
-                }
-                break;
-            case CellState.Rotating:
-                break;
-            case CellState.Locked:
-                break;
         }
     }
 
