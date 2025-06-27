@@ -59,7 +59,7 @@ public class Board : MonoBehaviour, IBoard
                 Cell cell = this.cells[i, j] = this.transform.GetChild(index++).GetComponent<Cell>();
                 cell.gameObject.SetActive(true);
                 // cell.gameObject.name = $"({i},{j})";
-                cell.Init(i, j, CellState.Still, this.levelConfig.RandomNext());
+                cell.Init(i, j, this.levelConfig.RandomNext());
 
                 cell.transform.position = new Vector3(
                     -this.width * 0.5f + 0.5f + i,

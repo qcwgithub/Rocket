@@ -17,12 +17,10 @@ public class Cell : MonoBehaviour, ICell
         }
     }
     public Shape shape { get; set; }
-    public CellState state;
-    public void Init(int x, int y, CellState state, Shape shape)
+    public void Init(int x, int y, Shape shape)
     {
         this.x = x;
         this.y = y;
-        this.state = state;
         this.shape = shape;
     }
 
@@ -53,24 +51,6 @@ public class Cell : MonoBehaviour, ICell
         else
         {
             this.spriteRenderer.color = Color.white;
-        }
-    }
-
-    public void EnterState(CellState state)
-    {
-        switch (state)
-        {
-            case CellState.Falling:
-                break;
-            case CellState.Still:
-                break;
-            case CellState.Rotating:
-                this.spriteRenderer.color = Color.white;
-                break;
-            case CellState.Warn:
-                break;
-            case CellState.Locked:
-                break;
         }
     }
 
