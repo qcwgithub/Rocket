@@ -28,7 +28,7 @@ public class Cell : MonoBehaviour
     public void ApplyShape()
     {
         CellData cellData = this.boardData.At(this.x, this.y);
-        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/V1/" + cellData.shape);
+        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/V2/" + cellData.shape);
     }
 
     public void ApplyColor()
