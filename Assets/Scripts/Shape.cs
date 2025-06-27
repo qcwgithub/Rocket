@@ -3,7 +3,6 @@ using UnityEngine;
 
 public enum Shape
 {
-    Empty,
     L,
     R,
     T,
@@ -80,8 +79,6 @@ public static class ShapeExt
     {
         switch (e)
         {
-            case Shape.Empty:
-                return false;
             case Shape.L:
                 return true;
             case Shape.R:
@@ -120,8 +117,6 @@ public static class ShapeExt
     {
         switch (e)
         {
-            case Shape.Empty:
-                return false;
             case Shape.L:
                 return false;
             case Shape.R:
@@ -160,8 +155,6 @@ public static class ShapeExt
     {
         switch (e)
         {
-            case Shape.Empty:
-                return false;
             case Shape.L:
                 return false;
             case Shape.R:
@@ -200,8 +193,6 @@ public static class ShapeExt
     {
         switch (e)
         {
-            case Shape.Empty:
-                return false;
             case Shape.L:
                 return false;
             case Shape.R:
@@ -240,8 +231,6 @@ public static class ShapeExt
     {
         switch (e)
         {
-            case Shape.Empty:
-                return Shape.Empty;
             case Shape.L:
                 return Shape.T;
             case Shape.R:
@@ -280,8 +269,6 @@ public static class ShapeExt
     {
         switch (e)
         {
-            case Shape.Empty:
-                return Shape.Empty;
             case Shape.L:
                 return Shape.B;
             case Shape.R:

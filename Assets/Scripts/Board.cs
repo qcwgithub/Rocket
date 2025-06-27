@@ -12,29 +12,30 @@ public class Board : MonoBehaviour, IBoard
     {
         return this.cells[x, y];
     }
-
-    public BoardData boardData;
+    
     public int width
     {
         get
         {
-            return this.boardData.width;
+            return this.levelConfig.width;
         }
     }
     public int height
     {
         get
         {
-            return this.boardData.height;
+            return this.levelConfig.height;
         }
     }
     ICell IBoard.At(int x, int y)
     {
         return this.cells[x, y];
     }
-    public void Init(BoardData boardData)
+
+    public LevelConfig levelConfig;
+    public void Init(LevelConfig levelConfig)
     {
-        this.boardData = boardData;
+        this.levelConfig = levelConfig;
 
         for (int i = 0; i < this.transform.childCount; i++)
         {
@@ -42,27 +43,27 @@ public class Board : MonoBehaviour, IBoard
             child.gameObject.SetActive(false);
         }
 
-        while (this.transform.childCount < boardData.width * boardData.height)
+        while (this.transform.childCount < this.width * this.height)
         {
             Cell cell = Instantiate(this.cellTemplate);
             cell.transform.parent = this.transform;
         }
 
-        this.cells = new Cell[boardData.width, boardData.height];
+        this.cells = new Cell[this.width, this.height];
 
         int index = 0;
-        for (int i = 0; i < boardData.width; i++)
+        for (int i = 0; i < this.width; i++)
         {
-            for (int j = 0; j < boardData.height; j++)
+            for (int j = 0; j < this.height; j++)
             {
                 Cell cell = this.cells[i, j] = this.transform.GetChild(index++).GetComponent<Cell>();
                 cell.gameObject.SetActive(true);
                 // cell.gameObject.name = $"({i},{j})";
-                cell.Init(boardData, i, j, CellState.Still);
+                cell.Create(i, j, CellState.Still, this.levelConfig.RandomNext());
 
                 cell.transform.position = new Vector3(
-                    -boardData.width * 0.5f + 0.5f + i,
-                    -boardData.height * 0.5f + 0.5f + j,
+                    -this.width * 0.5f + 0.5f + i,
+                    -this.height * 0.5f + 0.5f + j,
                     0f
                 );
             }
@@ -72,9 +73,9 @@ public class Board : MonoBehaviour, IBoard
 
     public void RefreshColors()
     {
-        for (int i = 0; i < boardData.width; i++)
+        for (int i = 0; i < this.width; i++)
         {
-            for (int j = 0; j < boardData.height; j++)
+            for (int j = 0; j < this.height; j++)
             {
                 this.At(i, j).ApplyColor();
             }
