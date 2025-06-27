@@ -105,5 +105,38 @@ public class Cell : MonoBehaviour
                 this.onRotateFinish?.Invoke(this, this.rotateDir);
             }
         }
+
+        if (this.previewing)
+        {
+            float t = Mathf.Clamp01(this.previewTimer / 0.2f);
+
+            if (this.zoomIn)
+            {
+                this.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(1.5f, 1.5f, 1f), t);
+                if (t >= 1f)
+                {
+                    this.previewTimer = 0f;
+                    this.zoomIn = false;
+                }
+            }
+            else
+            {
+                this.transform.localScale = Vector3.Lerp(new Vector3(1.5f, 1.5f, 1f), Vector3.one, t);
+                if (t >= 1f)
+                {
+                    this.previewing = false;
+                }
+            }
+        }
+    }
+
+    public bool previewing;
+    float previewTimer;
+    bool zoomIn;
+    public void Preview()
+    {
+        this.previewing = true;
+        this.previewTimer = 0f;
+        this.zoomIn = true;
     }
 }

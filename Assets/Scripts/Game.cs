@@ -55,12 +55,12 @@ public class Game : MonoBehaviour
         //
     }
 
-    List<Cell> rotatingCells = new List<Cell>();
-    List<Cell> rotatedCells = new List<Cell>();
+    // List<Cell> rotatingCells = new List<Cell>();
+    // List<Cell> rotatedCells = new List<Cell>();
     void OnCellRotateFinish(Cell cell, RotateDir rotateDir)
     {
-        this.rotatingCells.Remove(cell);
-        this.rotatedCells.Add(cell);
+        // this.rotatingCells.Remove(cell);
+        // this.rotatedCells.Add(cell);
 
         cell.ResetRotation();
 
@@ -73,12 +73,14 @@ public class Game : MonoBehaviour
             ? cellData.shape.GetSettings().rotateCW
             : cellData.shape.GetSettings().rotateCCW;
 
-        Debug.Log($"({cell.x}, {cell.y}) {pre} -> {cellData.shape}");
+        Debug.Log($"({cell.x}, {cell.y}) Rotate {pre} -> {cellData.shape}");
 
         this.gameData.RefreshLink();
 
         // cell.Apply();
         this.board.Apply();
+
+        this.RefreshPreviewOrFireQueue();
     }
 
     void OnClick(int i, int j, ClickAction action)
@@ -91,7 +93,7 @@ public class Game : MonoBehaviour
             return;
         }
 
-        this.rotatingCells.Add(cell);
+        // this.rotatingCells.Add(cell);
         CellData cellData = this.gameData.boardData.At(i, j);
         cellData.forbidLink = true;
         cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
@@ -108,5 +110,55 @@ public class Game : MonoBehaviour
         //     cell.ApplyShape();
         //     cell.ApplyColor();
         // }
+    }
+
+    List<Cell> previewingCells = new List<Cell>();
+    List<Cell> firingCells = new List<Cell>();
+    void RefreshPreviewOrFireQueue()
+    {
+        if (this.firingCells.Count > 0)
+        {
+            // dont interrupt
+            return;
+        }
+
+        if (this.previewingCells.Count > 0)
+        {
+            // try to cancel preview state
+        }
+
+        if (this.previewingCells.Count > 0)
+        {
+            // already previewing
+            return;
+        }
+
+        int firstX = -1;
+        int firstY = -1;
+        for (int j = board.height - 1; j >= 0; j--)
+        {
+            for (int i = 0; i < board.width; i++)
+            {
+                CellData cellData = this.gameData.boardData.At(i, j);
+                if (cellData.linkedLR)
+                {
+                    firstX = i;
+                    firstY = j;
+                    break;
+                }
+            }
+
+            if (firstX != -1)
+            {
+                break;
+            }
+        }
+
+        if (firstX == -1)
+        {
+            return;
+        }
+
+        
     }
 }
