@@ -11,4 +11,5 @@ public class CellData
             return this.linkedL && this.linkedR;
         }
     }
+    public bool linkedLRHandled;
 }

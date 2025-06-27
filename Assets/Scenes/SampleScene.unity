@@ -421,13 +421,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 745776868}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c692c942b0ab3c4d871795814ec2cfc, type: 3}
+  m_Script: {fileID: 11500000, guid: 41b12b00314f1c748b4ab2742666baf2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 745776870}
   x: 0
   y: 0
-  state: 0
+  rotating: 0
+  previewing: 0
 --- !u!1 &1448246191
 GameObject:
   m_ObjectHideFlags: 0
@@ -575,7 +576,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1534934816}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 631b4617cc5ccf14a99683e93f3d6344, type: 3}
+  m_Script: {fileID: 11500000, guid: f90be1558b825f8439f531a40f3b1cd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   cellTemplate: {fileID: 745776871}
