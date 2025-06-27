@@ -72,4 +72,30 @@ public class Cell : MonoBehaviour, ICell
                 break;
         }
     }
+
+    bool rotating;
+    float rotateTimer;
+    Quaternion startRotation;
+    Quaternion targetRotation;
+    public void PlayRotateAnimation(string what)
+    {
+        this.rotating = true;
+        this.rotateTimer = 0f;
+        this.startRotation = this.transform.rotation;
+        this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, what == "cw" ? -90f : 90f);
+    }
+
+    void Update()
+    {
+        if (this.rotating)
+        {
+            this.rotateTimer += Time.deltaTime;
+            float t = Mathf.Clamp01(this.rotateTimer / 0.2f);
+            this.transform.rotation = Quaternion.Lerp(this.startRotation, this.targetRotation, t);
+            if (t >= 1f)
+            {
+                this.rotating = false;
+            }
+        }
+    }
 }

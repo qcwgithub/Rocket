@@ -50,6 +50,8 @@ public class Game : MonoBehaviour
             CellData cellData = this.board.boardData.At(i, j);
             this.gameData.SetShape(i, j, cellData.shape.GetSettings().rotateCCW);
 
+            cell.PlayRotateAnimation("ccw");
+
             //
             cell.ApplyShape();
             cell.ApplyColor();
