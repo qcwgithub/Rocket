@@ -18,7 +18,7 @@ public class Cell : MonoBehaviour, ICell
     }
     public Shape shape { get; set; }
     public CellState state;
-    public void Create(int x, int y, CellState state, Shape shape)
+    public void Init(int x, int y, CellState state, Shape shape)
     {
         this.x = x;
         this.y = y;
