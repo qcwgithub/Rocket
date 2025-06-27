@@ -13,7 +13,9 @@ public class Game : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        bool clickL = Input.GetMouseButtonDown(0);
+        bool clickR = Input.GetMouseButtonDown(1);
+        if (clickL || clickR)
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             // Debug.Log(mousePos);
@@ -28,7 +30,7 @@ public class Game : MonoBehaviour
                     int j = (int)(y - -this.board.height * 0.5f);
 
                     // this.board.OnClick(i, j, ClickAction.RotateCCW);
-                    this.OnClick(i, j, ClickAction.RotateCCW);
+                    this.OnClick(i, j, clickL ? ClickAction.RotateCCW : ClickAction.RotateCW);
                     // Debug.Log($"({i},{j})");
                     // CellData cell = boardData.At(i, j);
                     // cell.shape = cell.shape.GetSettings().rotateCCW;
@@ -92,7 +94,7 @@ public class Game : MonoBehaviour
         this.rotatingCells.Add(cell);
         CellData cellData = this.gameData.boardData.At(i, j);
         cellData.forbidLink = true;
-        cell.Rotate(RotateDir.CCW, this.OnCellRotateFinish);
+        cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
 
         // if (cell.state == CellState.Still || cell.state == CellState.Warn)
         // {
