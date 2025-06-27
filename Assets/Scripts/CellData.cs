@@ -1,13 +1,14 @@
-public class CellData : ICell
+public class CellData
 {
-    public Shape shape { get; set; } // changable
-    public bool yellow{ get; set; }
-    public bool red{ get; set; }
-    public bool green
+    public Shape shape;
+    public bool forbidLink;
+    public bool linkedL;
+    public bool linkedR;
+    public bool linkedLR
     {
         get
         {
-            return this.yellow && this.red;
+            return this.linkedL && this.linkedR;
         }
     }
 }

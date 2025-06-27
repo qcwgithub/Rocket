@@ -2,49 +2,47 @@ using System;
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
-public class Cell : MonoBehaviour, ICell
+public class Cell : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
-    public int x { get; set; }
-    public int y { get; set; }
-    public bool yellow { get; set; }
-    public bool red { get; set; }
-    public bool green
+    public BoardData boardData;
+    public int x;
+    public int y;
+    public void Init(BoardData boardData, int x, int y)
     {
-        get
-        {
-            return this.yellow && this.red;
-        }
-    }
-    public Shape shape { get; set; }
-    public void Init(int x, int y, Shape shape)
-    {
+        this.boardData = boardData;
         this.x = x;
         this.y = y;
-        this.shape = shape;
+        this.Apply();
+        // this.shape = shape;
+
+        // this.RefreshName();
+        // this.RefreshSprite();
     }
 
-    void ApplyName()
+    // temp
+
+    void RefreshName(Shape shape)
     {
-        this.name = $"({this.x},{this.y}) {this.shape}";
+        this.name = $"({this.x},{this.y}) {shape}";
     }
 
-    public void ApplyShape()
+    void RefreshSprite(Shape shape)
     {
-        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/V2/" + this.shape);
+        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/V2/" + shape);
     }
 
-    public void ApplyColor()
+    void RefreshColor(bool linkedL, bool linkedR)
     {
-        if (this.green)
+        if (linkedL && linkedR)
         {
             this.spriteRenderer.color = Color.green;
         }
-        else if (this.yellow)
+        else if (linkedL)
         {
             this.spriteRenderer.color = Color.yellow;
         }
-        else if (this.red)
+        else if (linkedR)
         {
             this.spriteRenderer.color = Color.red;
         }
@@ -54,18 +52,44 @@ public class Cell : MonoBehaviour, ICell
         }
     }
 
+    // public void SetShape(Shape shape)
+    // {
+    //     this.shape = shape;
+    //     this.RefreshName();
+    //     this.RefreshSprite();
+    // }
+
+    public void Apply()
+    {
+        CellData cellData = this.boardData.At(this.x, this.y);
+        // this.shape = cellData.shape;
+        // this.linkedL = cellData.linkedL;
+        // this.linkedR = cellData.linkedR;
+
+        this.RefreshName(cellData.shape);
+        this.RefreshSprite(cellData.shape);
+        this.RefreshColor(cellData.linkedL, cellData.linkedR);
+    }
+
     public bool rotating;
+    RotateDir rotateDir;
     float rotateTimer;
     Quaternion startRotation;
     Quaternion targetRotation;
-    Action<Cell> onRotateFinish;
-    public void Rotate(string what, Action<Cell> onFinish)
+    Action<Cell, RotateDir> onRotateFinish;
+    public void Rotate(RotateDir rotateDir, Action<Cell, RotateDir> onFinish)
     {
         this.rotating = true;
+        this.rotateDir = rotateDir;
         this.rotateTimer = 0f;
         this.startRotation = this.transform.rotation;
-        this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, what == "cw" ? -90f : 90f);
+        this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, rotateDir == RotateDir.CW ? -90f : 90f);
         this.onRotateFinish = onFinish;
+    }
+
+    public void ResetRotation()
+    {
+        this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
     }
 
     public void MyUpdate(float dt)
@@ -78,7 +102,7 @@ public class Cell : MonoBehaviour, ICell
             if (t >= 1f)
             {
                 this.rotating = false;
-                this.onRotateFinish?.Invoke(this);
+                this.onRotateFinish?.Invoke(this, this.rotateDir);
             }
         }
     }

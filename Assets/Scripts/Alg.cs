@@ -2,32 +2,36 @@ using UnityEngine;
 
 public static class Alg
 {
-    public static void RefreshColor(IBoard board)
+    public static void RefreshLink(BoardData board)
     {
         // reset
         for (int i = 0; i < board.width; i++)
         {
             for (int j = 0; j < board.height; j++)
             {
-                ICell cell = board.At(i, j);
-                cell.yellow = false;
-                cell.red = false;
+                CellData cell = board.At(i, j);
+                cell.linkedL = false;
+                cell.linkedR = false;
             }
         }
 
         // init yellow
         for (int j = 0; j < board.height; j++)
         {
-            ICell cell = board.At(0, j);
+            CellData cell = board.At(0, j);
+            if (cell.forbidLink)
+            {
+                continue;
+            }
             if (cell.shape.GetSettings().linkedL)
             {
-                cell.yellow = true;
+                cell.linkedL = true;
             }
         }
         for (int j = 0; j < board.height; j++)
         {
-            ICell cell = board.At(0, j);
-            if (cell.yellow)
+            CellData cell = board.At(0, j);
+            if (cell.linkedL)
             {
                 Propagate(board, 0, j, true);
             }
@@ -36,25 +40,29 @@ public static class Alg
         // init red
         for (int j = 0; j < board.height; j++)
         {
-            ICell cell = board.At(board.width - 1, j);
+            CellData cell = board.At(board.width - 1, j);
+            if (cell.forbidLink)
+            {
+                continue;
+            }
             if (cell.shape.GetSettings().linkedR)
             {
-                cell.red = true;
+                cell.linkedR = true;
             }
         }
         for (int j = 0; j < board.height; j++)
         {
-            ICell cell = board.At(board.width - 1, j);
-            if (cell.red)
+            CellData cell = board.At(board.width - 1, j);
+            if (cell.linkedR)
             {
                 Propagate(board, board.width - 1, j, false);
             }
         }
     }
 
-    static void Propagate(IBoard board, int center_x, int center_y, bool isYellow)
+    static void Propagate(BoardData board, int center_x, int center_y, bool isL)
     {
-        ICell center = board.At(center_x, center_y);
+        CellData center = board.At(center_x, center_y);
         foreach (Vector2Int offset in center.shape.GetSettings().linkedOffsets)
         {
             int x = center_x + offset.x;
@@ -69,10 +77,14 @@ public static class Alg
                 continue;
             }
 
-            ICell cell = board.At(x, y);
-            if (isYellow)
+            CellData cell = board.At(x, y);
+            if (cell.forbidLink)
             {
-                if (cell.yellow)
+                continue;
+            }
+            if (isL)
+            {
+                if (cell.linkedL)
                 {
                     continue;
                 }
@@ -82,8 +94,8 @@ public static class Alg
                     if (offset2 == -offset)
                     {
                         // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
-                        cell.yellow = true;
-                        Propagate(board, x, y, isYellow);
+                        cell.linkedL = true;
+                        Propagate(board, x, y, isL);
 
                         break;
                     }
@@ -91,7 +103,7 @@ public static class Alg
             }
             else
             {
-                if (cell.red)
+                if (cell.linkedR)
                 {
                     continue;
                 }
@@ -101,8 +113,8 @@ public static class Alg
                     if (offset2 == -offset)
                     {
                         // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
-                        cell.red = true;
-                        Propagate(board, x, y, isYellow);
+                        cell.linkedR = true;
+                        Propagate(board, x, y, isL);
 
                         break;
                     }

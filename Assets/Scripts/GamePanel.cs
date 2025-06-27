@@ -11,10 +11,9 @@ public class GamePanel : MonoBehaviour
 
     public void OnClickStart()
     {
-        // var gameData = new GameData();
-        // gameData.Init();
+        var gameData = new GameData();
+        gameData.Init();
 
-        LevelConfig levelConfig = sc.configManager.GetLevelConfig(1);
-        sc.game.Init(levelConfig);
+        sc.game.Init(gameData);
     }
 }

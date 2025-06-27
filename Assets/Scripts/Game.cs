@@ -4,11 +4,11 @@ using UnityEngine;
 public class Game : MonoBehaviour
 {
     public Board board;
-    public LevelConfig levelConfig;
-    public void Init(LevelConfig levelConfig)
+    public GameData gameData;
+    public void Init(GameData gameData)
     {
-        this.levelConfig = levelConfig;
-        this.board.Init(levelConfig);
+        this.gameData = gameData;
+        this.board.Init(gameData.boardData);
     }
 
     void Update()
@@ -54,13 +54,35 @@ public class Game : MonoBehaviour
     }
 
     List<Cell> rotatingCells = new List<Cell>();
-    void OnCellRotateFinish(Cell cell)
+    List<Cell> rotatedCells = new List<Cell>();
+    void OnCellRotateFinish(Cell cell, RotateDir rotateDir)
     {
         this.rotatingCells.Remove(cell);
+        this.rotatedCells.Add(cell);
+
+        cell.ResetRotation();
+
+        CellData cellData = this.gameData.boardData.At(cell.x, cell.y);
+        cellData.forbidLink = false;
+
+        Shape pre = cellData.shape;
+
+        cellData.shape = rotateDir == RotateDir.CW
+            ? cellData.shape.GetSettings().rotateCW
+            : cellData.shape.GetSettings().rotateCCW;
+
+        Debug.Log($"({cell.x}, {cell.y}) {pre} -> {cellData.shape}");
+
+        this.gameData.RefreshLink();
+
+        // cell.Apply();
+        this.board.Apply();
     }
 
     void OnClick(int i, int j, ClickAction action)
     {
+        Debug.Log($"Click ({i}, {j})");
+
         Cell cell = this.board.At(i, j);
         if (cell.rotating)
         {
@@ -68,7 +90,9 @@ public class Game : MonoBehaviour
         }
 
         this.rotatingCells.Add(cell);
-        cell.Rotate("ccw", this.OnCellRotateFinish);
+        CellData cellData = this.gameData.boardData.At(i, j);
+        cellData.forbidLink = true;
+        cell.Rotate(RotateDir.CCW, this.OnCellRotateFinish);
 
         // if (cell.state == CellState.Still || cell.state == CellState.Warn)
         // {
@@ -82,15 +106,5 @@ public class Game : MonoBehaviour
         //     cell.ApplyShape();
         //     cell.ApplyColor();
         // }
-    }
-
-    void Event_CellRotateFinish(int i, int j)
-    {
-
-    }
-
-    void Event_CellDropFinish()
-    {
-
     }
 }

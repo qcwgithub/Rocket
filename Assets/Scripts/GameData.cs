@@ -14,20 +14,31 @@ public class GameData
             for (int y = 0; y < levelConfig.height; y++)
             {
                 CellData cell = boardData.At(x, y);
+                cell.forbidLink = false;
                 cell.shape = (Shape)random.Next(0, (int)Shape.Count);
             }
         }
 
-        Alg.RefreshColor(boardData);
+        // Alg.RefreshLink(boardData);
+        this.RefreshLink();
     }
 
-    public void SetShape(int x, int y, Shape shape)
+    public void RefreshLink()
     {
-        CellData cellData = this.boardData.At(x, y);
-        cellData.shape = shape;
-
-        Alg.RefreshColor(this.boardData);
+        Alg.RefreshLink(this.boardData);
     }
+
+    // public void SetShape(int x, int y, Shape shape)
+    // {
+    //     CellData cellData = this.boardData.At(x, y);
+    //     cellData.shape = shape;
+
+        
+
+    //     // Alg.RefreshColor(this.boardData);
+    // }
+
+
 
     public void Shift()
     {

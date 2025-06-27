@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Board : MonoBehaviour, IBoard
+public class Board : MonoBehaviour
 {
     public Cell cellTemplate;
     // List<CCell> children = new List<CCell>();
@@ -12,30 +12,26 @@ public class Board : MonoBehaviour, IBoard
     {
         return this.cells[x, y];
     }
-    
+
     public int width
     {
         get
         {
-            return this.levelConfig.width;
+            return this.boardData.width;
         }
     }
     public int height
     {
         get
         {
-            return this.levelConfig.height;
+            return this.boardData.height;
         }
     }
-    ICell IBoard.At(int x, int y)
-    {
-        return this.cells[x, y];
-    }
 
-    public LevelConfig levelConfig;
-    public void Init(LevelConfig levelConfig)
+    public BoardData boardData;
+    public void Init(BoardData boardData)
     {
-        this.levelConfig = levelConfig;
+        this.boardData = boardData;
 
         for (int i = 0; i < this.transform.childCount; i++)
         {
@@ -59,7 +55,7 @@ public class Board : MonoBehaviour, IBoard
                 Cell cell = this.cells[i, j] = this.transform.GetChild(index++).GetComponent<Cell>();
                 cell.gameObject.SetActive(true);
                 // cell.gameObject.name = $"({i},{j})";
-                cell.Init(i, j, this.levelConfig.RandomNext());
+                cell.Init(boardData, i, j);
 
                 cell.transform.position = new Vector3(
                     -this.width * 0.5f + 0.5f + i,
@@ -68,16 +64,27 @@ public class Board : MonoBehaviour, IBoard
                 );
             }
         }
-        this.RefreshColors();
+        // this.RefreshColors();
     }
 
-    public void RefreshColors()
+    // public void RefreshColors()
+    // {
+    //     for (int i = 0; i < this.width; i++)
+    //     {
+    //         for (int j = 0; j < this.height; j++)
+    //         {
+    //             this.At(i, j).ApplyColor();
+    //         }
+    //     }
+    // }
+
+    public void Apply()
     {
         for (int i = 0; i < this.width; i++)
         {
             for (int j = 0; j < this.height; j++)
             {
-                this.At(i, j).ApplyColor();
+                this.At(i, j).Apply();
             }
         }
     }

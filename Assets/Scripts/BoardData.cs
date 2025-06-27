@@ -1,4 +1,4 @@
-public class BoardData : IBoard
+public class BoardData
 {
     public int width{ get; set; }
     public int height{ get; set; }
@@ -17,11 +17,6 @@ public class BoardData : IBoard
                 this.cells[x, y] = new CellData();
             }
         }
-    }
-
-    ICell IBoard.At(int x, int y)
-    {
-        return this.cells[x, y];
     }
 
     public CellData At(int x, int y)
