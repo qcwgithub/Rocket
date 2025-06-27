@@ -1,8 +1,8 @@
-public class CellData
+public class CellData : ICell
 {
-    public Shape shape; // changable
-    public bool yellow;
-    public bool red;
+    public Shape shape { get; set; } // changable
+    public bool yellow{ get; set; }
+    public bool red{ get; set; }
     public bool green
     {
         get

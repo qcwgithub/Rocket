@@ -1,12 +1,15 @@
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
-public class Cell : MonoBehaviour
+public class Cell : MonoBehaviour, ICell
 {
     public SpriteRenderer spriteRenderer;
     public BoardData boardData;
-    public int x;
-    public int y;
+    public int x { get; set; }
+    public int y { get; set; }
+    public bool yellow { get; set; }
+    public bool red { get; set; }
+    public Shape shape { get; set; }
     public CellState state;
     public void Init(BoardData boardData, int x, int y, CellState state)
     {

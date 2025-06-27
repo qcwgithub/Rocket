@@ -3,21 +3,22 @@ using UnityEngine;
 
 public enum Shape
 {
-    L,      // 0
-    R,      // 1
-    T,      // 2
-    B,      // 3
-    LR,     // 4
-    LT,     // 5
-    LB,     // 6
-    RT,     // 7
-    RB,     // 8
-    TB,     // 9
-    LRT,    // 10
-    LRB,    // 11
-    LTB,    // 12
-    RTB,    // 13
-    LRTB,   // 14
+    Empty,
+    L,
+    R,
+    T,
+    B,
+    LR,
+    LT,
+    LB,
+    RT,
+    RB,
+    TB,
+    LRT,
+    LRB,
+    LTB,
+    RTB,
+    LRTB,
 
     Count,
 }
@@ -79,6 +80,8 @@ public static class ShapeExt
     {
         switch (e)
         {
+            case Shape.Empty:
+                return false;
             case Shape.L:
                 return true;
             case Shape.R:
@@ -117,6 +120,8 @@ public static class ShapeExt
     {
         switch (e)
         {
+            case Shape.Empty:
+                return false;
             case Shape.L:
                 return false;
             case Shape.R:
@@ -155,6 +160,8 @@ public static class ShapeExt
     {
         switch (e)
         {
+            case Shape.Empty:
+                return false;
             case Shape.L:
                 return false;
             case Shape.R:
@@ -193,6 +200,8 @@ public static class ShapeExt
     {
         switch (e)
         {
+            case Shape.Empty:
+                return false;
             case Shape.L:
                 return false;
             case Shape.R:
@@ -231,6 +240,8 @@ public static class ShapeExt
     {
         switch (e)
         {
+            case Shape.Empty:
+                return Shape.Empty;
             case Shape.L:
                 return Shape.T;
             case Shape.R:
@@ -269,6 +280,8 @@ public static class ShapeExt
     {
         switch (e)
         {
+            case Shape.Empty:
+                return Shape.Empty;
             case Shape.L:
                 return Shape.B;
             case Shape.R:

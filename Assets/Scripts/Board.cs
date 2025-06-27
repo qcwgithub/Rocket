@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class Board : MonoBehaviour
+public class Board : MonoBehaviour, IBoard
 {
     public Cell cellTemplate;
     // List<CCell> children = new List<CCell>();
@@ -14,6 +14,24 @@ public class Board : MonoBehaviour
     }
 
     public BoardData boardData;
+    public int width
+    {
+        get
+        {
+            return this.boardData.width;
+        }
+    }
+    public int height
+    {
+        get
+        {
+            return this.boardData.height;
+        }
+    }
+    ICell IBoard.At(int x, int y)
+    {
+        return this.cells[x, y];
+    }
     public void Init(BoardData boardData)
     {
         this.boardData = boardData;
