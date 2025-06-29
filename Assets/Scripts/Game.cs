@@ -5,10 +5,14 @@ public class Game : MonoBehaviour
 {
     public Board board;
     public GameData gameData;
+    public PreviewGroup previewGroup = new PreviewGroup();
+    public FireGroup fireGroup = new FireGroup();
     public void Init(GameData gameData)
     {
         this.gameData = gameData;
         this.board.Init(gameData.boardData);
+        this.previewGroup.Init(this);
+        this.fireGroup.Init(this);
     }
 
     void Update()
@@ -34,14 +38,7 @@ public class Game : MonoBehaviour
                     int i = (int)(x - -this.board.width * 0.5f);
                     int j = (int)(y - -this.board.height * 0.5f);
 
-                    // this.board.OnClick(i, j, ClickAction.RotateCCW);
                     this.OnClick(i, j, clickL ? ClickAction.RotateCCW : ClickAction.RotateCW);
-                    // Debug.Log($"({i},{j})");
-                    // CellData cell = boardData.At(i, j);
-                    // cell.shape = cell.shape.GetSettings().rotateCCW;
-
-                    // sc.board.At(i, j).ApplyShape();
-                    // sc.board.RefreshColors();
                 }
             }
         }
@@ -56,7 +53,16 @@ public class Game : MonoBehaviour
         }
 
         //
+        this.HandleDirty();
+    }
 
+    bool dirty = true;
+    public void SetDirty()
+    {
+        this.dirty = true;
+    }
+    void HandleDirty()
+    {
         if (this.dirty)
         {
             this.dirty = false;
@@ -68,16 +74,8 @@ public class Game : MonoBehaviour
         }
     }
 
-    // int rotateFinishDirty = 0;
-    bool dirty = true;
-
-    // List<Cell> rotatingCells = new List<Cell>();
-    // List<Cell> rotatedCells = new List<Cell>();
     void OnCellRotateFinish(Cell cell, RotateDir rotateDir)
     {
-        // this.rotatingCells.Remove(cell);
-        // this.rotatedCells.Add(cell);
-
         cell.ResetRotation();
 
         CellData cellData = this.gameData.boardData.At(cell.x, cell.y);
@@ -91,12 +89,7 @@ public class Game : MonoBehaviour
 
         Debug.Log($"({cell.x}, {cell.y}) Rotate {pre} -> {cellData.shape}");
 
-        this.dirty = true;
-        // this.gameData.RefreshLink();
-
-        // this.board.Apply();
-
-        // this.RefreshPreviewOrFireQueue();
+        this.SetDirty();
     }
 
     void OnClick(int i, int j, ClickAction action)
@@ -106,90 +99,33 @@ public class Game : MonoBehaviour
         Cell cell = this.board.At(i, j);
         if (cell.rotating)
         {
-            // cell.ResetRotation();
-            // cell.Apply();
-            // this.OnCellRotateFinish(cell, cell.rotateDir);
-            // return;
-            Debug.Log("Rotate again");
             cell.FinishRotate();
         }
 
-        // this.rotatingCells.Add(cell);
         CellData cellData = this.gameData.boardData.At(i, j);
         cellData.forbidLink = true;
         cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
-        this.dirty = true;
-
-        // if (cell.state == CellState.Still || cell.state == CellState.Warn)
-        // {
-        //     // logic
-        //     // CellData cellData = this.board.boardData.At(i, j);
-        //     // this.gameData.SetShape(i, j, cellData.shape.GetSettings().rotateCCW);
-
-        //     cell.PlayRotateAnimation("ccw");
-
-        //     //
-        //     cell.ApplyShape();
-        //     cell.ApplyColor();
-        // }
+        this.SetDirty();
     }
 
-    void OnCellPreviewFinish(Cell _cell)
+    void RefreshPreviewOrFireQueue()
     {
-        if (this.previewGroup == null)
+        if (this.fireGroup.firing)
         {
             return;
         }
 
-        for (int i = 0; i < this.previewGroup.poses.Count; i++)
-        {
-            Vector2Int pos = this.previewGroup.poses[i];
-            Cell cell = this.board.At(pos.x, pos.y);
-            if (cell.previewing)
-            {
-                return;
-            }
-        }
-
-        // done preview
-        Debug.Log("Done preview");
-
-        // 
-        this.previewGroup = null;
-    }
-
-    PreviewGroupData previewGroup;
-    // List<Cell> firingCells = new List<Cell>();
-    void RefreshPreviewOrFireQueue()
-    {
-        // if (this.firingCells.Count > 0)
-        // {
-        //     // dont interrupt
-        //     return;
-        // }
-
-        if (this.previewGroup != null)
+        if (this.previewGroup.previewing)
         {
             // try to cancel preview state
             if (this.gameData.boardData.previewGroupDatas.Count == 0)
             {
-                for (int i = 0; i < this.previewGroup.poses.Count; i++)
-                {
-                    Vector2Int pos = this.previewGroup.poses[i];
-                    Cell cell = this.board.At(pos.x, pos.y);
-                    if (cell.previewing)
-                    {
-                        cell.CancelPreview();
-                    }
-                }
-
-                this.previewGroup = null;
+                this.previewGroup.Cancel();
             }
         }
 
-        if (this.previewGroup != null)
+        if (this.previewGroup.previewing)
         {
-            // already previewing
             return;
         }
 
@@ -198,13 +134,25 @@ public class Game : MonoBehaviour
             return;
         }
 
-        this.previewGroup = this.gameData.boardData.previewGroupDatas[0].Clone();
-        for (int i = 0; i < this.previewGroup.poses.Count; i++)
+        this.previewGroup.Start(this.gameData.boardData.previewGroupDatas[0], this.OnPreviewFinish);
+        // Debug.Log("Start preview");
+    }
+
+    void OnPreviewFinish(List<Vector2Int> poses)
+    {
+        Debug.Assert(!this.fireGroup.firing);
+        if (!this.fireGroup.firing)
         {
-            Vector2Int pos = this.previewGroup.poses[i];
-            Cell cell = this.board.At(pos.x, pos.y);
-            cell.Preview(this.OnCellPreviewFinish);
+            this.fireGroup.Start(poses, this.OnFireFinish);
         }
-        Debug.Log("Start preview");
+    }
+
+    void OnFireFinish(List<Vector2Int> poses)
+    {
+        // Debug.Log("OnFireFinish");
+
+        // shift
+        // 
+
     }
 }

@@ -94,6 +94,7 @@ public class Cell : MonoBehaviour
 
     public void FinishRotate()
     {
+        Debug.Assert(this.rotating);
         if (this.rotating)
         {
             this.rotating = false;
@@ -117,7 +118,7 @@ public class Cell : MonoBehaviour
         if (this.previewing)
         {
             this.previewTimer += dt;
-            float t = Mathf.Clamp01(this.previewTimer / 0.2f);
+            float t = Mathf.Clamp01(this.previewTimer / 3f);
 
             if (this.zoomIn)
             {
@@ -137,6 +138,18 @@ public class Cell : MonoBehaviour
                 }
             }
         }
+
+        if (this.firing)
+        {
+            this.fireTimer += dt;
+            float t = Mathf.Clamp01(this.fireTimer / 3f);
+
+            this.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
+            if (t >= 1f)
+            {
+                this.FinishFire();
+            }
+        }
     }
 
     public bool previewing;
@@ -145,14 +158,19 @@ public class Cell : MonoBehaviour
     Action<Cell> onPreviewFinish;
     public void Preview(Action<Cell> onFinish)
     {
-        this.previewing = true;
-        this.previewTimer = 0f;
-        this.zoomIn = true;
-        this.onPreviewFinish = onFinish;
+        Debug.Assert(!this.previewing);
+        if (!this.previewing)
+        {
+            this.previewing = true;
+            this.previewTimer = 0f;
+            this.zoomIn = true;
+            this.onPreviewFinish = onFinish;
+        }
     }
 
     public void FinishPreview()
     {
+        Debug.Assert(this.previewing);
         if (this.previewing)
         {
             this.previewing = false;
@@ -162,7 +180,32 @@ public class Cell : MonoBehaviour
 
     public void CancelPreview()
     {
+        Debug.Assert(this.previewing);
         this.previewing = false;
         this.transform.localScale = Vector3.one;
+    }
+
+    public bool firing;
+    float fireTimer;
+    Action<Cell> onFireFinish;
+    public void Fire(Action<Cell> onFinish)
+    {
+        Debug.Assert(!this.firing);
+        if (!this.firing)
+        {
+            this.firing = true;
+            this.fireTimer = 0f;
+            this.onFireFinish = onFinish;
+        }
+    }
+
+    public void FinishFire()
+    {
+        Debug.Assert(this.firing);
+        if (this.firing)
+        {
+            this.firing = false;
+            this.onFireFinish?.Invoke(this);
+        }
     }
 }
