@@ -72,7 +72,7 @@ public class Cell : MonoBehaviour
     }
 
     public bool rotating;
-    RotateDir rotateDir;
+    public RotateDir rotateDir;
     float rotateTimer;
     Quaternion startRotation;
     Quaternion targetRotation;
@@ -92,6 +92,15 @@ public class Cell : MonoBehaviour
         this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
     }
 
+    public void FinishRotate()
+    {
+        if (this.rotating)
+        {
+            this.rotating = false;
+            this.onRotateFinish?.Invoke(this, this.rotateDir);
+        }
+    }
+
     public void MyUpdate(float dt)
     {
         if (this.rotating)
@@ -101,13 +110,13 @@ public class Cell : MonoBehaviour
             this.transform.rotation = Quaternion.Lerp(this.startRotation, this.targetRotation, t);
             if (t >= 1f)
             {
-                this.rotating = false;
-                this.onRotateFinish?.Invoke(this, this.rotateDir);
+                this.FinishRotate();
             }
         }
 
         if (this.previewing)
         {
+            this.previewTimer += dt;
             float t = Mathf.Clamp01(this.previewTimer / 0.2f);
 
             if (this.zoomIn)
@@ -124,7 +133,7 @@ public class Cell : MonoBehaviour
                 this.transform.localScale = Vector3.Lerp(new Vector3(1.5f, 1.5f, 1f), Vector3.one, t);
                 if (t >= 1f)
                 {
-                    this.previewing = false;
+                    this.FinishPreview();
                 }
             }
         }
@@ -133,10 +142,27 @@ public class Cell : MonoBehaviour
     public bool previewing;
     float previewTimer;
     bool zoomIn;
-    public void Preview()
+    Action<Cell> onPreviewFinish;
+    public void Preview(Action<Cell> onFinish)
     {
         this.previewing = true;
         this.previewTimer = 0f;
         this.zoomIn = true;
+        this.onPreviewFinish = onFinish;
+    }
+
+    public void FinishPreview()
+    {
+        if (this.previewing)
+        {
+            this.previewing = false;
+            this.onPreviewFinish?.Invoke(this);
+        }
+    }
+
+    public void CancelPreview()
+    {
+        this.previewing = false;
+        this.transform.localScale = Vector3.one;
     }
 }

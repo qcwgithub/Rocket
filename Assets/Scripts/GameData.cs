@@ -1,9 +1,10 @@
 public class GameData
 {
     public BoardData boardData;
+    public System.Random random;
     public void Init()
     {
-        var random = new System.Random(1);
+        this.random = new System.Random(1);
 
         LevelConfig levelConfig = sc.configManager.GetLevelConfig(1);
         this.boardData = new BoardData();
@@ -15,12 +16,17 @@ public class GameData
             {
                 CellData cell = boardData.At(x, y);
                 cell.forbidLink = false;
-                cell.shape = ShapeExt.Without1()[random.Next(0, ShapeExt.Without1().Length)];
+                cell.shape = this.RandomShape();
             }
         }
 
         // Alg.RefreshLink(boardData);
         this.RefreshLink();
+    }
+
+    public Shape RandomShape()
+    {
+        return ShapeExt.Without1()[this.random.Next(0, ShapeExt.Without1().Length)];
     }
 
     public void RefreshLink()

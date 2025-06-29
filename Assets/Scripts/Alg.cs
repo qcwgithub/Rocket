@@ -18,7 +18,7 @@ public static class Alg
 
             }
         }
-        board.previewLists.Clear();
+        board.previewGroupDatas.Clear();
 
         // init L
         for (int j = 0; j < board.height; j++)
@@ -75,25 +75,27 @@ public static class Alg
                 }
                 cellData.linkedLRHandled = true;
 
-                List<Vector2Int> previewList = new List<Vector2Int>();
-                previewList.Add(new Vector2Int(i, j));
-                board.previewLists.Add(previewList);
+                var group = new PreviewGroupData();
+                group.poses.Add(new Vector2Int(i, j));
+                board.previewGroupDatas.Add(group);
 
                 Propagate(board, i, j, "LR");
             }
         }
 
         //
-        var sb = new StringBuilder();
-        for (int i = 0; i < board.previewLists.Count; i++)
+#if UNITY_EDITOR
+        for (int i = 0; i < board.previewGroupDatas.Count; i++)
         {
+            var sb = new StringBuilder();
             sb.Append($"[{i}]");
-            foreach (var p in board.previewLists[i])
+            foreach (var p in board.previewGroupDatas[i].poses)
             {
                 sb.Append($"({p.x},{p.y}) ");
             }
+            UnityEngine.Debug.Log(sb);
         }
-        UnityEngine.Debug.Log(sb);
+#endif
     }
 
     static void Propagate(BoardData board, int center_x, int center_y, string what)
@@ -125,16 +127,11 @@ public static class Alg
                     continue;
                 }
 
-                foreach (Vector2Int offset2 in cell.shape.GetSettings().linkedOffsets)
+                if (cell.shape.GetSettings().linkedOffsets.Contains(-offset))
                 {
-                    if (offset2 == -offset)
-                    {
-                        // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
-                        cell.linkedL = true;
-                        Propagate(board, x, y, what);
-
-                        break;
-                    }
+                    // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
+                    cell.linkedL = true;
+                    Propagate(board, x, y, what);
                 }
             }
             else if (what == "R")
@@ -144,29 +141,27 @@ public static class Alg
                     continue;
                 }
 
-                foreach (Vector2Int offset2 in cell.shape.GetSettings().linkedOffsets)
+                if (cell.shape.GetSettings().linkedOffsets.Contains(-offset))
                 {
-                    if (offset2 == -offset)
-                    {
-                        // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
-                        cell.linkedR = true;
-                        Propagate(board, x, y, what);
-
-                        break;
-                    }
+                    // UnityEngine.Debug.Log($"{center_x},{center_y}->{x} {y}");
+                    cell.linkedR = true;
+                    Propagate(board, x, y, what);
                 }
             }
             else if (what == "LR")
             {
-                if (!cell.linkedLR||cell.linkedLRHandled)
+                if (!cell.linkedLR || cell.linkedLRHandled)
                 {
                     continue;
                 }
 
-                cell.linkedLRHandled = true;
+                if (cell.shape.GetSettings().linkedOffsets.Contains(-offset))
+                {
+                    cell.linkedLRHandled = true;
 
-                board.currentPreviewList.Add(new Vector2Int(x, y));
-                Propagate(board, x, y, what);
+                    board.currentPreviewGroupData.poses.Add(new Vector2Int(x, y));
+                    Propagate(board, x, y, what);
+                }
             }
         }
     }

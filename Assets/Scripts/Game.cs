@@ -13,6 +13,11 @@ public class Game : MonoBehaviour
 
     void Update()
     {
+        this.MyUpdate(Time.deltaTime);
+    }
+
+    public void MyUpdate(float dt)
+    {
         bool clickL = Input.GetMouseButtonDown(0);
         bool clickR = Input.GetMouseButtonDown(1);
         if (clickL || clickR)
@@ -41,8 +46,6 @@ public class Game : MonoBehaviour
             }
         }
 
-        float dt = Time.deltaTime;
-
         for (int i = 0; i < board.width; i++)
         {
             for (int j = 0; j < board.height; j++)
@@ -53,7 +56,20 @@ public class Game : MonoBehaviour
         }
 
         //
+
+        if (this.dirty)
+        {
+            this.dirty = false;
+
+            this.gameData.RefreshLink();
+            this.board.Apply();
+
+            this.RefreshPreviewOrFireQueue();
+        }
     }
+
+    // int rotateFinishDirty = 0;
+    bool dirty = true;
 
     // List<Cell> rotatingCells = new List<Cell>();
     // List<Cell> rotatedCells = new List<Cell>();
@@ -75,12 +91,12 @@ public class Game : MonoBehaviour
 
         Debug.Log($"({cell.x}, {cell.y}) Rotate {pre} -> {cellData.shape}");
 
-        this.gameData.RefreshLink();
+        this.dirty = true;
+        // this.gameData.RefreshLink();
 
-        // cell.Apply();
-        this.board.Apply();
+        // this.board.Apply();
 
-        this.RefreshPreviewOrFireQueue();
+        // this.RefreshPreviewOrFireQueue();
     }
 
     void OnClick(int i, int j, ClickAction action)
@@ -90,13 +106,19 @@ public class Game : MonoBehaviour
         Cell cell = this.board.At(i, j);
         if (cell.rotating)
         {
-            return;
+            // cell.ResetRotation();
+            // cell.Apply();
+            // this.OnCellRotateFinish(cell, cell.rotateDir);
+            // return;
+            Debug.Log("Rotate again");
+            cell.FinishRotate();
         }
 
         // this.rotatingCells.Add(cell);
         CellData cellData = this.gameData.boardData.At(i, j);
         cellData.forbidLink = true;
         cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
+        this.dirty = true;
 
         // if (cell.state == CellState.Still || cell.state == CellState.Warn)
         // {
@@ -112,53 +134,77 @@ public class Game : MonoBehaviour
         // }
     }
 
-    List<Cell> previewingCells = new List<Cell>();
-    List<Cell> firingCells = new List<Cell>();
-    void RefreshPreviewOrFireQueue()
+    void OnCellPreviewFinish(Cell _cell)
     {
-        if (this.firingCells.Count > 0)
+        if (this.previewGroup == null)
         {
-            // dont interrupt
             return;
         }
 
-        if (this.previewingCells.Count > 0)
+        for (int i = 0; i < this.previewGroup.poses.Count; i++)
         {
-            // try to cancel preview state
+            Vector2Int pos = this.previewGroup.poses[i];
+            Cell cell = this.board.At(pos.x, pos.y);
+            if (cell.previewing)
+            {
+                return;
+            }
         }
 
-        if (this.previewingCells.Count > 0)
+        // done preview
+        Debug.Log("Done preview");
+
+        // 
+        this.previewGroup = null;
+    }
+
+    PreviewGroupData previewGroup;
+    // List<Cell> firingCells = new List<Cell>();
+    void RefreshPreviewOrFireQueue()
+    {
+        // if (this.firingCells.Count > 0)
+        // {
+        //     // dont interrupt
+        //     return;
+        // }
+
+        if (this.previewGroup != null)
+        {
+            // try to cancel preview state
+            if (this.gameData.boardData.previewGroupDatas.Count == 0)
+            {
+                for (int i = 0; i < this.previewGroup.poses.Count; i++)
+                {
+                    Vector2Int pos = this.previewGroup.poses[i];
+                    Cell cell = this.board.At(pos.x, pos.y);
+                    if (cell.previewing)
+                    {
+                        cell.CancelPreview();
+                    }
+                }
+
+                this.previewGroup = null;
+            }
+        }
+
+        if (this.previewGroup != null)
         {
             // already previewing
             return;
         }
 
-        int firstX = -1;
-        int firstY = -1;
-        for (int j = board.height - 1; j >= 0; j--)
-        {
-            for (int i = 0; i < board.width; i++)
-            {
-                CellData cellData = this.gameData.boardData.At(i, j);
-                if (cellData.linkedLR)
-                {
-                    firstX = i;
-                    firstY = j;
-                    break;
-                }
-            }
-
-            if (firstX != -1)
-            {
-                break;
-            }
-        }
-
-        if (firstX == -1)
+        if (this.gameData.boardData.previewGroupDatas.Count == 0)
         {
             return;
         }
 
-        
+        this.previewGroup = this.gameData.boardData.previewGroupDatas[0].Clone();
+        for (int i = 0; i < this.previewGroup.poses.Count; i++)
+        {
+            Vector2Int pos = this.previewGroup.poses[i];
+            Cell cell = this.board.At(pos.x, pos.y);
+            cell.Preview(this.OnCellPreviewFinish);
+        }
+        Debug.Log("Start preview");
     }
 }

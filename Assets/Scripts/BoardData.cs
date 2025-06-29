@@ -6,7 +6,7 @@ public class BoardData
     public int width { get; set; }
     public int height { get; set; }
     public CellData[,] cells;
-    public List<List<Vector2Int>> previewLists;
+    public List<PreviewGroupData> previewGroupDatas = new List<PreviewGroupData>();
 
     public void Init(int width, int height)
     {
@@ -21,8 +21,6 @@ public class BoardData
                 this.cells[x, y] = new CellData();
             }
         }
-
-        this.previewLists = new List<List<Vector2Int>>();
     }
 
     public CellData At(int x, int y)
@@ -30,11 +28,11 @@ public class BoardData
         return this.cells[x, y];
     }
 
-    public List<Vector2Int> currentPreviewList
+    public PreviewGroupData currentPreviewGroupData
     {
         get
         {
-            return this.previewLists[this.previewLists.Count - 1];
+            return this.previewGroupDatas[this.previewGroupDatas.Count - 1];
         }
     }
 }
