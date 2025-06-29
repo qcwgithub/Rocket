@@ -35,6 +35,27 @@ public class ShapeSettings
 
 public static class ShapeExt
 {
+    static Shape[] s_without1;
+    public static Shape[] Without1()
+    {
+        if (s_without1 == null)
+        {
+            s_without1 = new Shape[] {
+                Shape.LR,
+                Shape.LT,
+                Shape.LB,
+                Shape.RT,
+                Shape.RB,
+                Shape.TB,
+                Shape.LRT,
+                Shape.LRB,
+                Shape.LTB,
+                Shape.RTB,
+                Shape.LRTB,
+            };
+        }
+        return s_without1;
+    }
     static ShapeSettings[] s_settings;
     public static ShapeSettings GetSettings(this Shape e)
     {

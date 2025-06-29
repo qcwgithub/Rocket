@@ -15,7 +15,7 @@ public class GameData
             {
                 CellData cell = boardData.At(x, y);
                 cell.forbidLink = false;
-                cell.shape = (Shape)random.Next(0, (int)Shape.Count);
+                cell.shape = ShapeExt.Without1()[random.Next(0, ShapeExt.Without1().Length)];
             }
         }
 

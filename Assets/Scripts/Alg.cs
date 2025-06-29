@@ -1,4 +1,6 @@
 using UnityEngine;
+using System.Collections.Generic;
+using System.Text;
 
 public static class Alg
 {
@@ -16,7 +18,7 @@ public static class Alg
 
             }
         }
-        board.linkedLRList.Clear();
+        board.previewLists.Clear();
 
         // init L
         for (int j = 0; j < board.height; j++)
@@ -36,7 +38,7 @@ public static class Alg
             CellData cell = board.At(0, j);
             if (cell.linkedL)
             {
-                Propagate(board, 0, j, "linkedL");
+                Propagate(board, 0, j, "L");
             }
         }
 
@@ -58,7 +60,7 @@ public static class Alg
             CellData cell = board.At(board.width - 1, j);
             if (cell.linkedR)
             {
-                Propagate(board, board.width - 1, j, "linkedR");
+                Propagate(board, board.width - 1, j, "R");
             }
         }
 
@@ -67,19 +69,31 @@ public static class Alg
             for (int i = 0; i < board.width; i++)
             {
                 CellData cellData = board.At(i, j);
-                if (cellData.forbidLink || !cellData.linkedLR || cellData.linkedLRHandled)
+                if (!cellData.linkedLR || cellData.linkedLRHandled)
                 {
                     continue;
                 }
+                cellData.linkedLRHandled = true;
 
-                Propagate(board, i, j, "linkedLR");
+                List<Vector2Int> previewList = new List<Vector2Int>();
+                previewList.Add(new Vector2Int(i, j));
+                board.previewLists.Add(previewList);
+
+                Propagate(board, i, j, "LR");
             }
         }
-    }
 
-    static void Propagate_linkedL(BoardData board, int center_x, int center_y, string what)
-    {
-
+        //
+        var sb = new StringBuilder();
+        for (int i = 0; i < board.previewLists.Count; i++)
+        {
+            sb.Append($"[{i}]");
+            foreach (var p in board.previewLists[i])
+            {
+                sb.Append($"({p.x},{p.y}) ");
+            }
+        }
+        UnityEngine.Debug.Log(sb);
     }
 
     static void Propagate(BoardData board, int center_x, int center_y, string what)
@@ -104,7 +118,7 @@ public static class Alg
             {
                 continue;
             }
-            if (what == "linkedL")
+            if (what == "L")
             {
                 if (cell.linkedL)
                 {
@@ -123,7 +137,7 @@ public static class Alg
                     }
                 }
             }
-            else if (what == "linkedR")
+            else if (what == "R")
             {
                 if (cell.linkedR)
                 {
@@ -142,13 +156,17 @@ public static class Alg
                     }
                 }
             }
-            else if (what == "linkedLR")
+            else if (what == "LR")
             {
-                if (!cell.linkedLR)
+                if (!cell.linkedLR||cell.linkedLRHandled)
                 {
                     continue;
                 }
-                
+
+                cell.linkedLRHandled = true;
+
+                board.currentPreviewList.Add(new Vector2Int(x, y));
+                Propagate(board, x, y, what);
             }
         }
     }
