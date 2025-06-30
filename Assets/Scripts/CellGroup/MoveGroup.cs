@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,9 +10,11 @@ public class MoveGroup
         this.game = game;
     }
 
-    public void Move(List<Vector2Int> poses)
+    Action<Cell> onCellMoveFinish;
+    public void Move(List<Vector2Int> poses, Action<Cell> onCellMoveFinish)
     {
         // Debug.Log("OnFireFinish");
+        this.onCellMoveFinish = onCellMoveFinish;
 
         // poses.Sort((a, b) => a.y - b.y); // y 小的在前
 
@@ -81,8 +84,8 @@ public class MoveGroup
         }
     }
 
-    void OnCellMoveFinish(Cell _cell)
+    void OnCellMoveFinish(Cell cell)
     {
-
+        this.onCellMoveFinish?.Invoke(cell);
     }
 }

@@ -3,9 +3,13 @@ using UnityEngine;
 
 public class CellStatePreview : CellState
 {
-    public override bool CanRotate()
+    public override bool AskRotate()
     {
-        return false;
+        if (this.previewing)
+        {
+            this.CancelPreview();
+        }
+        return true;
     }
 
     public override bool OverrideSpriteShape(out Shape shape)
@@ -21,7 +25,7 @@ public class CellStatePreview : CellState
     public void Preview(Action<Cell> onFinish)
     {
         // Debug.LogWarning($"CellStatePreview.Preview ({this.cell.x}, {this.cell.y})");
-        Debug.Assert(!this.previewing);
+        Debug.Assert(!this.previewing, $"{this.cell.x} {this.cell.y}");
         this.previewing = true;
         this.previewTimer = 0f;
         this.zoomIn = true;

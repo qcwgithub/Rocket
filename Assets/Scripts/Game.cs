@@ -100,6 +100,7 @@ public class Game : MonoBehaviour
     void OnCellRotateFinish(Cell cell, RotateDir rotateDir)
     {
         this.SetDirty();
+        this.HandleDirty();
     }
 
     void OnClick(int i, int j, ClickAction action)
@@ -107,21 +108,14 @@ public class Game : MonoBehaviour
         Debug.Log($"Click ({i}, {j})");
 
         Cell cell = this.board.At(i, j);
-        if (cell.firing)
+        if (!cell.state.AskRotate())
         {
             return;
-        }
-        // if (cell.previewing)
-        // {
-
-        // }
-        if (cell.rotating)
-        {
-            cell.stateRotate.FinishRotate();
         }
 
         cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
         this.SetDirty();
+        this.HandleDirty();
     }
 
     void OnPreviewFinish(List<Vector2Int> poses)
@@ -135,6 +129,14 @@ public class Game : MonoBehaviour
 
     void OnFireFinish(List<Vector2Int> poses)
     {
-        this.moveGroup.Move(poses);
+        this.moveGroup.Move(poses, this.OnCellMoveFinish);
+        this.SetDirty();
+        this.HandleDirty();
+    }
+
+    void OnCellMoveFinish(Cell _cell)
+    {
+        this.SetDirty();
+        this.HandleDirty();
     }
 }

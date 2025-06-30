@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CellStateRotate : CellState
 {
-    public override bool CanRotate()
+    public override bool AskRotate()
     {
         return true;
     }
@@ -28,7 +28,13 @@ public class CellStateRotate : CellState
     Shape overrideShape;
     public void Rotate(RotateDir rotateDir, Action<Cell, RotateDir> onFinish)
     {
-        Debug.Assert(!this.rotating);
+        if (this.rotating)
+        {
+            this.cell.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+            this.cell.Refresh();
+        }
+
+        // Debug.Assert(!this.rotating);
         this.rotating = true;
         this.rotateDir = rotateDir;
         this.rotateTimer = 0f;

@@ -1,6 +1,6 @@
 public class CellStateIdle : CellState
 {
-    public override bool CanRotate()
+    public override bool AskRotate()
     {
         return true;
     }

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class CellStateMove : CellState
 {
-    public override bool CanRotate()
+    public override bool AskRotate()
     {
         return false;
     }

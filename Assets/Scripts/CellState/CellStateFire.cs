@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CellStateFire : CellState
 {
-    public override bool CanRotate()
+    public override bool AskRotate()
     {
         return false;
     }
