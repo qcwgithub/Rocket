@@ -11,7 +11,7 @@ public class PreviewGroup
         this.previewing = false;
     }
 
-    const float DURATION = 2f;
+    const float DURATION = 0.4f;
 
     public bool previewing;
     float startTime;
