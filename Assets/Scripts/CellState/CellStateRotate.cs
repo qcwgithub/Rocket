@@ -39,16 +39,15 @@ public class CellStateRotate : CellState
         this.rotateDir = rotateDir;
         this.rotateTimer = 0f;
         this.startRotation = this.cell.transform.rotation;
-        this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, rotateDir == RotateDir.CW ? -90f : 90f);
+        this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, rotateDir.ToRotateAngle());
         this.onRotateFinish = onFinish;
 
         CellData cellData = this.cell.game.gameData.boardData.At(this.cell.x, this.cell.y);
         this.overrideShape = cellData.shape;
 
         cellData.forbidLink = true;
-        cellData.shape = rotateDir == RotateDir.CW
-            ? cellData.shape.GetSettings().rotateCW
-            : cellData.shape.GetSettings().rotateCCW;
+
+        cellData.shape = cellData.shape.GetSettings().GetRotateResult(rotateDir);
     }
 
     public override void MyUpdate(float dt)

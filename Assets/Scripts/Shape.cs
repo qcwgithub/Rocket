@@ -24,6 +24,7 @@ public enum Shape
 
 public class ShapeSettings
 {
+    public List<Dir> linkedDirs;
     public List<Vector2Int> linkedOffsets;
     public bool linkedL;
     public bool linkedR;
@@ -31,6 +32,24 @@ public class ShapeSettings
     public bool linkedB;
     public Shape rotateCW;
     public Shape rotateCCW;
+    public Shape rotateCW2;
+    public Shape rotateCCW2;
+
+    public Shape GetRotateResult(RotateDir rotateDir)
+    {
+        switch (rotateDir)
+        {
+            case RotateDir.CW:
+                return this.rotateCW;
+            case RotateDir.CCW:
+                return this.rotateCCW;
+            case RotateDir.CW2:
+                return this.rotateCW2;
+            case RotateDir.CCW2:
+            default:
+                return this.rotateCCW2;
+        }
+    }
 }
 
 public static class ShapeExt
@@ -40,7 +59,8 @@ public static class ShapeExt
     {
         if (s_without1 == null)
         {
-            s_without1 = new Shape[] {
+            s_without1 = new Shape[]
+            {
                 Shape.LR,
                 Shape.LT,
                 Shape.LB,
@@ -56,6 +76,7 @@ public static class ShapeExt
         }
         return s_without1;
     }
+
     static ShapeSettings[] s_settings;
     public static ShapeSettings GetSettings(this Shape e)
     {
@@ -73,26 +94,33 @@ public static class ShapeExt
     static ShapeSettings CreateSettings(this Shape e)
     {
         ShapeSettings settings = new ShapeSettings();
+        settings.linkedDirs = new List<Dir>();
         settings.linkedOffsets = new List<Vector2Int>();
 
         if (settings.linkedL = e.Linked_L())
         {
+            settings.linkedDirs.Add(Dir.L);
             settings.linkedOffsets.Add(Vector2Int.left);
         }
         if (settings.linkedR = e.Linked_R())
         {
+            settings.linkedDirs.Add(Dir.R);
             settings.linkedOffsets.Add(Vector2Int.right);
         }
         if (settings.linkedT = e.Linked_T())
         {
+            settings.linkedDirs.Add(Dir.T);
             settings.linkedOffsets.Add(Vector2Int.up);
         }
         if (settings.linkedB = e.Linked_B())
         {
+            settings.linkedDirs.Add(Dir.B);
             settings.linkedOffsets.Add(Vector2Int.down);
         }
         settings.rotateCW = e.RotateCW();
         settings.rotateCCW = e.RotateCCW();
+        settings.rotateCW2 = settings.rotateCW.RotateCW();
+        settings.rotateCCW2 = settings.rotateCCW.RotateCCW();
         return settings;
     }
 

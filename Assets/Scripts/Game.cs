@@ -5,12 +5,14 @@ public class Game : MonoBehaviour
 {
     public Board board;
     public GameData gameData;
+    public MyInput myInput = new MyInput();
     public PreviewGroup previewGroup = new PreviewGroup();
     public FireGroup fireGroup = new FireGroup();
     public MoveGroup moveGroup = new MoveGroup();
     public void Init(GameData gameData)
     {
         this.gameData = gameData;
+        this.myInput.Init(this);
         this.board.Init(this);
         this.previewGroup.Init(this);
         this.fireGroup.Init(this);
@@ -32,26 +34,7 @@ public class Game : MonoBehaviour
 
     public void MyUpdate(float dt)
     {
-        bool clickL = Input.GetMouseButtonDown(0);
-        bool clickR = Input.GetMouseButtonDown(1);
-        if (clickL || clickR)
-        {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            // Debug.Log(mousePos);
-
-            float x = mousePos.x;
-            float y = mousePos.y;
-            if (x > -this.board.width * 0.5f && x < this.board.width * 0.5f)
-            {
-                if (y > -this.board.height * 0.5f && y < this.board.height * 0.5f)
-                {
-                    int i = (int)(x - -this.board.width * 0.5f);
-                    int j = (int)(y - -this.board.height * 0.5f);
-
-                    this.OnClick(i, j, clickL ? ClickAction.RotateCCW : ClickAction.RotateCW);
-                }
-            }
-        }
+        this.myInput.MyUpdate(dt);
 
         for (int i = 0; i < board.width; i++)
         {
@@ -111,19 +94,39 @@ public class Game : MonoBehaviour
         this.HandleDirty();
     }
 
-    void OnClick(int i, int j, ClickAction action)
+    public void OnClick(int x, int y, RotateDir rotateDir)
     {
-        Debug.Log($"Click ({i}, {j})");
+        Debug.Log($"Click ({x}, {y})");
 
-        Cell cell = this.board.At(i, j);
+        Cell cell = this.board.At(x, y);
         if (!cell.state.AskRotate())
         {
             return;
         }
 
-        cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
+        cell.Rotate(rotateDir, this.OnCellRotateFinish);
         this.SetDirty();
         this.HandleDirty();
+    }
+
+    public void OnSwipe(int x, int y, Dir dir)
+    {
+        Cell cell = this.board.At(x, y);
+
+        Vector2Int offset = dir.ToOffset();
+        int x2 = x + offset.x;
+        int y2 = y + offset.y;
+        Cell cell2 = this.board.At(x2, y2);
+
+        if (cell.state.AskRotate())
+        {
+
+        }
+
+        if (cell2.state.AskRotate())
+        {
+            
+        }
     }
 
     void OnPreviewFinish(List<Vector2Int> poses)

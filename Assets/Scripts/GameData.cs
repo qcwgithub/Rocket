@@ -27,6 +27,7 @@ public class GameData
     public Shape RandomShape()
     {
         return ShapeExt.Without1()[this.random.Next(0, ShapeExt.Without1().Length)];
+        // return Shape.LRTB;
     }
 
     public void RefreshLink()
