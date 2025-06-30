@@ -49,7 +49,7 @@ public class PreviewGroup
 
     public void Cancel()
     {
-        Debug.LogWarning("PreviewGroup.Cancel");
+        // Debug.LogWarning("PreviewGroup.Cancel");
         Debug.Assert(this.previewing);
         this.previewing = false;
 
@@ -80,7 +80,7 @@ public class PreviewGroup
             {
                 posesL.Add(pos);
             }
-            else if (pos.y == this.game.gameData.boardData.width - 1)
+            else if (pos.x == this.game.gameData.boardData.width - 1)
             {
                 posesR.Add(pos);
             }
