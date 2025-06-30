@@ -17,24 +17,28 @@ public class Cell : MonoBehaviour
     public BoardData boardData;
     public int x;
     public int y;
+    public CellStateIdle stateIdle = new CellStateIdle();
+    public CellStateRotate stateRotate = new CellStateRotate();
+    public CellStatePreview statePreview = new CellStatePreview();
+    public CellStateFire stateFire = new CellStateFire();
+    public CellStateMove stateMove = new CellStateMove();
+    public CellState state;
     public void Init(BoardData boardData, int x, int y)
     {
         this.boardData = boardData;
         this.x = x;
         this.y = y;
+
+        this.stateIdle.Init(this);
+        this.stateRotate.Init(this);
+        this.statePreview.Init(this);
+        this.stateFire.Init(this);
+        this.stateMove.Init(this);
+
+        this.state = this.stateIdle;
+
         this.Refresh();
-        // this.shape = shape;
-
-        // this.RefreshName();
-        // this.RefreshSprite();
     }
-
-    public void ChangeY(int y)
-    {
-        this.y = y;
-    }
-
-    // temp
 
     int _name_x = -1;
     int _name_y;
@@ -89,207 +93,55 @@ public class Cell : MonoBehaviour
         }
     }
 
-    // public void SetShape(Shape shape)
-    // {
-    //     this.shape = shape;
-    //     this.RefreshName();
-    //     this.RefreshSprite();
-    // }
-
-    Shape? overrideSpriteShape = null;
-    void OverrideSpriteShape(Shape? shape)
-    {
-        if (shape != null)
-        {
-            Debug.Assert(this.overrideSpriteShape == null);
-        }
-        this.overrideSpriteShape = shape;
-    }
     public void Refresh()
     {
         CellData cellData = this.boardData.At(this.x, this.y);
 
         this.RefreshName(this.x, this.y, cellData.shape);
-        this.RefreshSprite(this.overrideSpriteShape != null ? this.overrideSpriteShape.Value : cellData.shape);
+        this.RefreshSprite(this.state.OverrideSpriteShape(out Shape overrideShape) ? overrideShape : cellData.shape);
         this.RefreshColor(cellData.linkedL, cellData.linkedR);
-    }
-
-    public bool rotating;
-    public RotateDir rotateDir;
-    float rotateTimer;
-    Quaternion startRotation;
-    Quaternion targetRotation;
-    Action<Cell, RotateDir> onRotateFinish;
-    // Shape rotate_shape;
-    public void Rotate(RotateDir rotateDir, Action<Cell, RotateDir> onFinish)
-    {
-        Debug.Assert(!this.rotating);
-        this.rotating = true;
-        this.rotateDir = rotateDir;
-        this.rotateTimer = 0f;
-        this.startRotation = this.transform.rotation;
-        this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, rotateDir == RotateDir.CW ? -90f : 90f);
-        this.onRotateFinish = onFinish;
-
-        CellData cellData = this.boardData.At(this.x, this.y);
-        // this.rotate_shape = cellData.shape;
-
-        // !
-        // _sprite_shape = cellData.shape;
-        // _color_L = false;
-        // _color_R = false;
-        this.OverrideSpriteShape(cellData.shape);
-
-        cellData.forbidLink = true;
-        cellData.shape = rotateDir == RotateDir.CW
-            ? cellData.shape.GetSettings().rotateCW
-            : cellData.shape.GetSettings().rotateCCW;
-    }
-
-    // public void ResetRotation()
-    // {
-    //     this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-    // }
-
-    public void FinishRotate()
-    {
-        Debug.Assert(this.rotating);
-
-        this.OverrideSpriteShape(null);
-
-        CellData cellData = this.boardData.At(this.x, this.y);
-        cellData.forbidLink = false;
-
-        this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-        this.Refresh();
-
-        this.rotating = false;
-        this.onRotateFinish?.Invoke(this, this.rotateDir);
     }
 
     public void MyUpdate(float dt)
     {
-        if (this.rotating)
-        {
-            this.rotateTimer += dt;
-            float t = Mathf.Clamp01(this.rotateTimer / 0.2f);
-            this.transform.rotation = Quaternion.Lerp(this.startRotation, this.targetRotation, t);
-            if (t >= 1f)
-            {
-                this.FinishRotate();
-            }
-        }
-
-        if (this.previewing)
-        {
-            this.previewTimer += dt;
-            float t = Mathf.Clamp01(this.previewTimer / 3f);
-
-            if (this.zoomIn)
-            {
-                this.transform.localScale = Vector3.Lerp(Vector3.one, new Vector3(1.5f, 1.5f, 1f), t);
-                if (t >= 1f)
-                {
-                    this.previewTimer = 0f;
-                    this.zoomIn = false;
-                }
-            }
-            else
-            {
-                this.transform.localScale = Vector3.Lerp(new Vector3(1.5f, 1.5f, 1f), Vector3.one, t);
-                if (t >= 1f)
-                {
-                    this.FinishPreview();
-                }
-            }
-        }
-
-        if (this.firing)
-        {
-            this.fireTimer += dt;
-            float t = Mathf.Clamp01(this.fireTimer / 3f);
-
-            this.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
-            if (t >= 1f)
-            {
-                this.FinishFire();
-            }
-        }
-
-        if (this.moving)
-        {
-            Vector3 position = this.transform.position;
-            position.y -= 2f * dt;
-            if (position.y <= this.targetPositionY)
-            {
-                position.y = this.targetPositionY;
-            }
-            this.transform.position = position;
-            if (position.y <= this.targetPositionY)
-            {
-                this.FinishMove();
-            }
-        }
+        this.state.MyUpdate(dt);
     }
-
-    public bool previewing;
-    float previewTimer;
-    bool zoomIn;
-    Action<Cell> onPreviewFinish;
-    public void Preview(Action<Cell> onFinish)
+    public bool rotating
     {
-        Debug.Assert(!this.previewing);
-        this.previewing = true;
-        this.previewTimer = 0f;
-        this.zoomIn = true;
-        this.onPreviewFinish = onFinish;
+        get
+        {
+            return this.state == this.stateRotate && this.stateRotate.rotating;
+        }
     }
-
-    public void FinishPreview()
+    public bool firing
     {
-        Debug.Assert(this.previewing);
-        this.previewing = false;
-        this.onPreviewFinish?.Invoke(this);
+        get
+        {
+            return this.state == this.stateFire && this.stateFire.firing;
+        }
     }
-
-    public void CancelPreview()
+    public bool previewing
     {
-        Debug.Assert(this.previewing);
-        this.previewing = false;
-        this.transform.localScale = Vector3.one;
+        get
+        {
+            return this.state == this.statePreview && this.statePreview.previewing;
+        }
     }
 
-    public bool firing;
-    float fireTimer;
-    Action<Cell> onFireFinish;
+    public void Rotate(RotateDir rotateDir, Action<Cell, RotateDir> onFinish)
+    {
+        this.state = this.stateRotate;
+        this.stateRotate.Rotate(rotateDir, onFinish);
+    }
+
     public void Fire(Action<Cell> onFinish)
     {
-        Debug.Assert(!this.firing);
-        this.firing = true;
-        this.fireTimer = 0f;
-        this.onFireFinish = onFinish;
+        this.state = this.stateFire;
+        this.stateFire.Fire(onFinish);
     }
-
-    public void FinishFire()
+    public void Preview(Action<Cell> onFinish)
     {
-        Debug.Assert(this.firing);
-        this.firing = false;
-        this.onFireFinish?.Invoke(this);
-    }
-
-    public bool moving;
-    public float targetPositionY;
-    public Action<Cell> onMoveFinish;
-    public void Move(float targetPositionY, Action<Cell> onFinish)
-    {
-        this.moving = true;
-        this.targetPositionY = targetPositionY;
-        this.onMoveFinish = onFinish;
-    }
-
-    public void FinishMove()
-    {
-        this.moving = false;
-        this.onMoveFinish?.Invoke(this);
+        this.state = this.statePreview;
+        this.statePreview.Preview(onFinish);
     }
 }

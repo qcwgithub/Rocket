@@ -67,7 +67,7 @@ public class PreviewGroup
                 Cell cell = this.game.board.At(pos.x, pos.y);
                 if (cell.previewing)
                 {
-                    cell.CancelPreview();
+                    cell.statePreview.CancelPreview();
                 }
             }
         }
@@ -163,7 +163,7 @@ public class PreviewGroup
                 Cell cell = this.game.board.At(pos.x, pos.y);
                 if (cell.previewing)
                 {
-                    cell.CancelPreview();
+                    cell.statePreview.CancelPreview();
                 }
             }
         }
