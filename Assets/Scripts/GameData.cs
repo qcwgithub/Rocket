@@ -33,21 +33,4 @@ public class GameData
     {
         Alg.RefreshLink(this.boardData);
     }
-
-    // public void SetShape(int x, int y, Shape shape)
-    // {
-    //     CellData cellData = this.boardData.At(x, y);
-    //     cellData.shape = shape;
-
-        
-
-    //     // Alg.RefreshColor(this.boardData);
-    // }
-
-
-
-    public void Shift()
-    {
-
-    }
 }

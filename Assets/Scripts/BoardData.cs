@@ -28,6 +28,21 @@ public class BoardData
         return this.cells[x, y];
     }
 
+    public CellData Take(int x, int y)
+    {
+        CellData cellData = this.cells[x, y];
+        Debug.Assert(cellData != null);
+
+        this.cells[x, y] = null;
+        return cellData;
+    }
+
+    public void Put(int x, int y, CellData cellData)
+    {
+        Debug.Assert(this.cells[x, y] == null);
+        this.cells[x, y] = cellData;
+    }
+
     public PreviewGroupData currentPreviewGroupData
     {
         get

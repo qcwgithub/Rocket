@@ -57,11 +57,7 @@ public class Board : MonoBehaviour
                 // cell.gameObject.name = $"({i},{j})";
                 cell.Init(boardData, i, j);
 
-                cell.transform.position = new Vector3(
-                    -this.width * 0.5f + 0.5f + i,
-                    -this.height * 0.5f + 0.5f + j,
-                    0f
-                );
+                cell.transform.position = this.GetPosition(i, j);
             }
         }
         // this.RefreshColors();
@@ -78,13 +74,22 @@ public class Board : MonoBehaviour
     //     }
     // }
 
-    public void Apply()
+    public Vector3 GetPosition(int i, int j)
+    {
+        return new Vector3(
+            -this.width * 0.5f + 0.5f + i,
+            -this.height * 0.5f + 0.5f + j,
+            0f
+        );
+    }
+
+    public void Refresh()
     {
         for (int i = 0; i < this.width; i++)
         {
             for (int j = 0; j < this.height; j++)
             {
-                this.At(i, j).Apply();
+                this.At(i, j).Refresh();
             }
         }
     }

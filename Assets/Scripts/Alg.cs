@@ -84,18 +84,18 @@ public static class Alg
         }
 
         //
-#if UNITY_EDITOR
-        for (int i = 0; i < board.previewGroupDatas.Count; i++)
-        {
-            var sb = new StringBuilder();
-            sb.Append($"[{i}]");
-            foreach (var p in board.previewGroupDatas[i].poses)
-            {
-                sb.Append($"({p.x},{p.y}) ");
-            }
-            UnityEngine.Debug.Log(sb);
-        }
-#endif
+// #if UNITY_EDITOR
+//         for (int i = 0; i < board.previewGroupDatas.Count; i++)
+//         {
+//             var sb = new StringBuilder();
+//             sb.Append($"[{i}]");
+//             foreach (var p in board.previewGroupDatas[i].poses)
+//             {
+//                 sb.Append($"({p.x},{p.y}) ");
+//             }
+//             UnityEngine.Debug.Log(sb);
+//         }
+// #endif
     }
 
     static void Propagate(BoardData board, int center_x, int center_y, string what)

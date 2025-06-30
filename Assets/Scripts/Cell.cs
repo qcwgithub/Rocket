@@ -2,6 +2,15 @@ using System;
 using Microsoft.Unity.VisualStudio.Editor;
 using UnityEngine;
 
+[Flags]
+public enum CellSyncPart
+{
+    Name = 1,
+    Sprite = 2,
+    Color = 4,
+    All = -1
+}
+
 public class Cell : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
@@ -13,42 +22,70 @@ public class Cell : MonoBehaviour
         this.boardData = boardData;
         this.x = x;
         this.y = y;
-        this.Apply();
+        this.Refresh();
         // this.shape = shape;
 
         // this.RefreshName();
         // this.RefreshSprite();
     }
 
+    public void ChangeY(int y)
+    {
+        this.y = y;
+    }
+
     // temp
 
-    void RefreshName(Shape shape)
+    int _name_x = -1;
+    int _name_y;
+    Shape _name_shape;
+    void RefreshName(int x, int y, Shape shape)
     {
-        this.name = $"({this.x},{this.y}) {shape}";
+        if (_name_x != x || _name_y != y || _name_shape != shape)
+        {
+            _name_x = x;
+            _name_y = y;
+            _name_shape = shape;
+            this.name = $"({x}, {y}) {shape}";
+        }
     }
 
+    Shape _sprite_shape = Shape.Count;
     void RefreshSprite(Shape shape)
     {
-        this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/V2/" + shape);
+        if (_sprite_shape != shape)
+        {
+            this.spriteRenderer.sprite = Resources.Load<Sprite>("Sprites/V2/" + shape);
+        }
     }
 
+    bool _color_inited = false;
+    bool _color_L = false;
+    bool _color_R = false;
     void RefreshColor(bool linkedL, bool linkedR)
     {
-        if (linkedL && linkedR)
+        if (!_color_inited || _color_L != linkedL || _color_R != linkedR)
         {
-            this.spriteRenderer.color = Color.green;
-        }
-        else if (linkedL)
-        {
-            this.spriteRenderer.color = Color.yellow;
-        }
-        else if (linkedR)
-        {
-            this.spriteRenderer.color = Color.red;
-        }
-        else
-        {
-            this.spriteRenderer.color = Color.white;
+            _color_inited = true;
+            _color_L = linkedL;
+            _color_R = linkedR;
+
+            if (linkedL && linkedR)
+            {
+                this.spriteRenderer.color = Color.green;
+            }
+            else if (linkedL)
+            {
+                this.spriteRenderer.color = Color.yellow;
+            }
+            else if (linkedR)
+            {
+                this.spriteRenderer.color = Color.red;
+            }
+            else
+            {
+                this.spriteRenderer.color = Color.white;
+            }
         }
     }
 
@@ -59,15 +96,21 @@ public class Cell : MonoBehaviour
     //     this.RefreshSprite();
     // }
 
-    public void Apply()
+    Shape? overrideSpriteShape = null;
+    void OverrideSpriteShape(Shape? shape)
+    {
+        if (shape != null)
+        {
+            Debug.Assert(this.overrideSpriteShape == null);
+        }
+        this.overrideSpriteShape = shape;
+    }
+    public void Refresh()
     {
         CellData cellData = this.boardData.At(this.x, this.y);
-        // this.shape = cellData.shape;
-        // this.linkedL = cellData.linkedL;
-        // this.linkedR = cellData.linkedR;
 
-        this.RefreshName(cellData.shape);
-        this.RefreshSprite(cellData.shape);
+        this.RefreshName(this.x, this.y, cellData.shape);
+        this.RefreshSprite(this.overrideSpriteShape != null ? this.overrideSpriteShape.Value : cellData.shape);
         this.RefreshColor(cellData.linkedL, cellData.linkedR);
     }
 
@@ -77,29 +120,51 @@ public class Cell : MonoBehaviour
     Quaternion startRotation;
     Quaternion targetRotation;
     Action<Cell, RotateDir> onRotateFinish;
+    // Shape rotate_shape;
     public void Rotate(RotateDir rotateDir, Action<Cell, RotateDir> onFinish)
     {
+        Debug.Assert(!this.rotating);
         this.rotating = true;
         this.rotateDir = rotateDir;
         this.rotateTimer = 0f;
         this.startRotation = this.transform.rotation;
         this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, rotateDir == RotateDir.CW ? -90f : 90f);
         this.onRotateFinish = onFinish;
+
+        CellData cellData = this.boardData.At(this.x, this.y);
+        // this.rotate_shape = cellData.shape;
+
+        // !
+        // _sprite_shape = cellData.shape;
+        // _color_L = false;
+        // _color_R = false;
+        this.OverrideSpriteShape(cellData.shape);
+
+        cellData.forbidLink = true;
+        cellData.shape = rotateDir == RotateDir.CW
+            ? cellData.shape.GetSettings().rotateCW
+            : cellData.shape.GetSettings().rotateCCW;
     }
 
-    public void ResetRotation()
-    {
-        this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-    }
+    // public void ResetRotation()
+    // {
+    //     this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+    // }
 
     public void FinishRotate()
     {
         Debug.Assert(this.rotating);
-        if (this.rotating)
-        {
-            this.rotating = false;
-            this.onRotateFinish?.Invoke(this, this.rotateDir);
-        }
+
+        this.OverrideSpriteShape(null);
+
+        CellData cellData = this.boardData.At(this.x, this.y);
+        cellData.forbidLink = false;
+
+        this.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+        this.Refresh();
+
+        this.rotating = false;
+        this.onRotateFinish?.Invoke(this, this.rotateDir);
     }
 
     public void MyUpdate(float dt)
@@ -150,6 +215,21 @@ public class Cell : MonoBehaviour
                 this.FinishFire();
             }
         }
+
+        if (this.moving)
+        {
+            Vector3 position = this.transform.position;
+            position.y -= 2f * dt;
+            if (position.y <= this.targetPositionY)
+            {
+                position.y = this.targetPositionY;
+            }
+            this.transform.position = position;
+            if (position.y <= this.targetPositionY)
+            {
+                this.FinishMove();
+            }
+        }
     }
 
     public bool previewing;
@@ -159,23 +239,17 @@ public class Cell : MonoBehaviour
     public void Preview(Action<Cell> onFinish)
     {
         Debug.Assert(!this.previewing);
-        if (!this.previewing)
-        {
-            this.previewing = true;
-            this.previewTimer = 0f;
-            this.zoomIn = true;
-            this.onPreviewFinish = onFinish;
-        }
+        this.previewing = true;
+        this.previewTimer = 0f;
+        this.zoomIn = true;
+        this.onPreviewFinish = onFinish;
     }
 
     public void FinishPreview()
     {
         Debug.Assert(this.previewing);
-        if (this.previewing)
-        {
-            this.previewing = false;
-            this.onPreviewFinish?.Invoke(this);
-        }
+        this.previewing = false;
+        this.onPreviewFinish?.Invoke(this);
     }
 
     public void CancelPreview()
@@ -191,21 +265,31 @@ public class Cell : MonoBehaviour
     public void Fire(Action<Cell> onFinish)
     {
         Debug.Assert(!this.firing);
-        if (!this.firing)
-        {
-            this.firing = true;
-            this.fireTimer = 0f;
-            this.onFireFinish = onFinish;
-        }
+        this.firing = true;
+        this.fireTimer = 0f;
+        this.onFireFinish = onFinish;
     }
 
     public void FinishFire()
     {
         Debug.Assert(this.firing);
-        if (this.firing)
-        {
-            this.firing = false;
-            this.onFireFinish?.Invoke(this);
-        }
+        this.firing = false;
+        this.onFireFinish?.Invoke(this);
+    }
+
+    public bool moving;
+    public float targetPositionY;
+    public Action<Cell> onMoveFinish;
+    public void Move(float targetPositionY, Action<Cell> onFinish)
+    {
+        this.moving = true;
+        this.targetPositionY = targetPositionY;
+        this.onMoveFinish = onFinish;
+    }
+
+    public void FinishMove()
+    {
+        this.moving = false;
+        this.onMoveFinish?.Invoke(this);
     }
 }

@@ -63,53 +63,15 @@ public class Game : MonoBehaviour
     }
     void HandleDirty()
     {
-        if (this.dirty)
+        if (!this.dirty)
         {
-            this.dirty = false;
-
-            this.gameData.RefreshLink();
-            this.board.Apply();
-
-            this.RefreshPreviewOrFireQueue();
+            return;
         }
-    }
+        this.dirty = false;
 
-    void OnCellRotateFinish(Cell cell, RotateDir rotateDir)
-    {
-        cell.ResetRotation();
+        this.gameData.RefreshLink();
+        this.board.Refresh();
 
-        CellData cellData = this.gameData.boardData.At(cell.x, cell.y);
-        cellData.forbidLink = false;
-
-        Shape pre = cellData.shape;
-
-        cellData.shape = rotateDir == RotateDir.CW
-            ? cellData.shape.GetSettings().rotateCW
-            : cellData.shape.GetSettings().rotateCCW;
-
-        Debug.Log($"({cell.x}, {cell.y}) Rotate {pre} -> {cellData.shape}");
-
-        this.SetDirty();
-    }
-
-    void OnClick(int i, int j, ClickAction action)
-    {
-        Debug.Log($"Click ({i}, {j})");
-
-        Cell cell = this.board.At(i, j);
-        if (cell.rotating)
-        {
-            cell.FinishRotate();
-        }
-
-        CellData cellData = this.gameData.boardData.At(i, j);
-        cellData.forbidLink = true;
-        cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
-        this.SetDirty();
-    }
-
-    void RefreshPreviewOrFireQueue()
-    {
         if (this.fireGroup.firing)
         {
             return;
@@ -117,11 +79,7 @@ public class Game : MonoBehaviour
 
         if (this.previewGroup.previewing)
         {
-            // try to cancel preview state
-            if (this.gameData.boardData.previewGroupDatas.Count == 0)
-            {
-                this.previewGroup.Cancel();
-            }
+            this.previewGroup.UpdatePreview(this.gameData.boardData.previewGroupDatas);
         }
 
         if (this.previewGroup.previewing)
@@ -135,7 +93,33 @@ public class Game : MonoBehaviour
         }
 
         this.previewGroup.Start(this.gameData.boardData.previewGroupDatas[0], this.OnPreviewFinish);
-        // Debug.Log("Start preview");
+    }
+
+    void OnCellRotateFinish(Cell cell, RotateDir rotateDir)
+    {
+        this.SetDirty();
+    }
+
+    void OnClick(int i, int j, ClickAction action)
+    {
+        Debug.Log($"Click ({i}, {j})");
+
+        Cell cell = this.board.At(i, j);
+        if (cell.firing)
+        {
+            return;
+        }
+        // if (cell.previewing)
+        // {
+
+        // }
+        if (cell.rotating)
+        {
+            cell.FinishRotate();
+        }
+
+        cell.Rotate(action == ClickAction.RotateCW ? RotateDir.CW : RotateDir.CCW, this.OnCellRotateFinish);
+        this.SetDirty();
     }
 
     void OnPreviewFinish(List<Vector2Int> poses)
@@ -151,8 +135,42 @@ public class Game : MonoBehaviour
     {
         // Debug.Log("OnFireFinish");
 
-        // shift
-        // 
+        BoardData boardData = this.gameData.boardData;
 
+        var frees = new List<CellData>();
+        foreach (Vector2Int pos in poses)
+        {
+            frees.Add(boardData.Take(pos.x, pos.y));
+        }
+
+        int freeIndex = 0;
+
+        for (int i = 0; i < boardData.width; i++)
+        {
+            for (int j = 0; j < boardData.height; j++)
+            {
+                if (boardData.At(i, j) == null)
+                {
+                    bool found = false;
+                    for (int j2 = j + 1; j2 < boardData.height; j2++)
+                    {
+                        // (i, j2) -> (i, j)
+                        if (boardData.At(i, j2) != null)
+                        {
+                            boardData.Put(i, j, boardData.Take(i, j2));
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found)
+                    {
+                        Debug.Assert(frees.Count > 0);
+                        CellData free = frees[frees.Count - 1];
+                        frees.RemoveAt(frees.Count - 1);
+                        boardData.Put(i, j, free);
+                    }
+                }
+            }
+        }
     }
 }
