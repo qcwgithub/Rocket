@@ -11,7 +11,10 @@ public class PreviewGroup
         this.previewing = false;
     }
 
+    const float DURATION = 2f;
+
     public bool previewing;
+    float startTime;
     public List<Vector2Int> poses = new List<Vector2Int>();
     Action<List<Vector2Int>> onFinish;
     public void Start(PreviewGroupData previewGroupData, Action<List<Vector2Int>> onFinish)
@@ -22,11 +25,12 @@ public class PreviewGroup
         this.poses.AddRange(previewGroupData.poses);
         this.onFinish = onFinish;
 
+        this.startTime = this.game.time;
         for (int i = 0; i < this.poses.Count; i++)
         {
             Vector2Int pos = this.poses[i];
             Cell cell = this.game.board.At(pos.x, pos.y);
-            cell.Preview(this.OnCellPreviewFinish);
+            cell.Preview(DURATION, 0f, this.OnCellPreviewFinish);
         }
     }
 
@@ -162,13 +166,15 @@ public class PreviewGroup
         this.poses.Clear();
         this.poses.AddRange(curr_previewGroupData.poses);
 
+        float now = this.game.time;
+        float initTimer = now - this.startTime;
         // +preview
         foreach (Vector2Int pos in this.poses)
         {
             Cell cell = this.game.board.At(pos.x, pos.y);
             if (!cell.previewing)
             {
-                cell.Preview(this.OnCellPreviewFinish);
+                cell.Preview(DURATION, initTimer, this.OnCellPreviewFinish);
             }
         }
     }

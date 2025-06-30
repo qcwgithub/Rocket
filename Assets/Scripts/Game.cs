@@ -17,6 +17,14 @@ public class Game : MonoBehaviour
         this.moveGroup.Init(this);
     }
 
+    public float time
+    {
+        get
+        {
+            return Time.time;
+        }
+    }
+
     void Update()
     {
         this.MyUpdate(Time.deltaTime);

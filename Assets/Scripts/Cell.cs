@@ -139,10 +139,10 @@ public class Cell : MonoBehaviour
         this.state = this.stateFire;
         this.stateFire.Fire(onFinish);
     }
-    public void Preview(Action<Cell> onFinish)
+    public void Preview(float duration, float initTimer, Action<Cell> onFinish)
     {
         this.state = this.statePreview;
-        this.statePreview.Preview(onFinish);
+        this.statePreview.Preview(duration, initTimer, onFinish);
     }
 
     public void Move(float fromPositionY, float toPositionY, Action<Cell> onFinish)
