@@ -46,6 +46,7 @@ public class CellStateMove : CellState
     public void FinishMove()
     {
         this.moving = false;
+        this.cell.Idle();
         this.onMoveFinish?.Invoke(this.cell);
     }
 }

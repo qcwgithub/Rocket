@@ -28,11 +28,6 @@ public class CellStateRotate : CellState
     Shape overrideShape;
     public void Rotate(RotateDir rotateDir, Action<Cell, RotateDir> onFinish)
     {
-        if (this.rotating)
-        {
-            this.FinishRotate();
-        }
-
         Debug.Assert(!this.rotating);
         this.rotating = true;
         this.rotateDir = rotateDir;
@@ -73,7 +68,10 @@ public class CellStateRotate : CellState
         cellData.forbidLink = false;
 
         this.cell.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
-        this.cell.Refresh();
+
+        this.cell.Idle();
+
+        // this.cell.Refresh();
 
         this.onRotateFinish?.Invoke(this.cell, this.rotateDir);
     }

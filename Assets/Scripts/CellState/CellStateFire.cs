@@ -45,6 +45,7 @@ public class CellStateFire : CellState
     {
         Debug.Assert(this.firing);
         this.firing = false;
+        this.cell.Idle();
         this.onFireFinish?.Invoke(this.cell);
     }
 }

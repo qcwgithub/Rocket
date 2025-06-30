@@ -144,4 +144,8 @@ public class Cell : MonoBehaviour
         this.state = this.statePreview;
         this.statePreview.Preview(onFinish);
     }
+    public void Idle()
+    {
+        this.state = this.stateIdle;
+    }
 }

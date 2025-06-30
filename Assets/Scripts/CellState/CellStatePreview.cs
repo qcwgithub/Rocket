@@ -58,6 +58,7 @@ public class CellStatePreview : CellState
     {
         Debug.Assert(this.previewing);
         this.previewing = false;
+        this.cell.Idle();
         this.onPreviewFinish?.Invoke(this.cell);
     }
 
@@ -66,6 +67,7 @@ public class CellStatePreview : CellState
         Debug.Assert(this.previewing);
         this.previewing = false;
         this.cell.transform.localScale = Vector3.one;
+        this.cell.Idle();
     }
 }
 
