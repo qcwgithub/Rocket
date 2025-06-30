@@ -14,7 +14,7 @@ public class CellStateFire : CellState
         shape = default;
         return false;
     }
-    
+
     public bool firing;
     float fireTimer;
     Action<Cell> onFireFinish;
@@ -31,7 +31,7 @@ public class CellStateFire : CellState
         if (this.firing)
         {
             this.fireTimer += dt;
-            float t = Mathf.Clamp01(this.fireTimer / 3f);
+            float t = Mathf.Clamp01(this.fireTimer / 0.2f);
 
             this.cell.transform.localScale = Vector3.Lerp(Vector3.one, Vector3.zero, t);
             if (t >= 1f)
@@ -45,6 +45,7 @@ public class CellStateFire : CellState
     {
         Debug.Assert(this.firing);
         this.firing = false;
+        this.cell.transform.localScale = Vector3.one;
         this.cell.Idle();
         this.onFireFinish?.Invoke(this.cell);
     }

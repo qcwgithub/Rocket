@@ -11,7 +11,7 @@ public class Game : MonoBehaviour
     public void Init(GameData gameData)
     {
         this.gameData = gameData;
-        this.board.Init(gameData.boardData);
+        this.board.Init(this);
         this.previewGroup.Init(this);
         this.fireGroup.Init(this);
         this.moveGroup.Init(this);
@@ -135,6 +135,6 @@ public class Game : MonoBehaviour
 
     void OnFireFinish(List<Vector2Int> poses)
     {
-        this.moveGroup.OnFireFinish(poses);
+        this.moveGroup.Move(poses);
     }
 }

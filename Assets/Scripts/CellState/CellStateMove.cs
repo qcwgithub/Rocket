@@ -14,15 +14,23 @@ public class CellStateMove : CellState
         return false;
     }
 
-
     public bool moving;
     public float targetPositionY;
     public Action<Cell> onMoveFinish;
-    public void Move(float targetPositionY, Action<Cell> onFinish)
+
+    public void Move(float fromPositionY, float toPositionY, Action<Cell> onFinish)
     {
         this.moving = true;
-        this.targetPositionY = targetPositionY;
+
+        Vector3 position = this.cell.transform.position;
+        position.y = fromPositionY;
+        this.cell.transform.position = position;
+
+        this.targetPositionY = toPositionY;
         this.onMoveFinish = onFinish;
+
+        CellData cellData = this.cell.game.gameData.boardData.At(this.cell.x, this.cell.y);
+        cellData.forbidLink = true;
     }
 
     public override void MyUpdate(float dt)
@@ -30,7 +38,7 @@ public class CellStateMove : CellState
         if (this.moving)
         {
             Vector3 position = this.cell.transform.position;
-            position.y -= 2f * dt;
+            position.y -= 4f * dt;
             if (position.y <= this.targetPositionY)
             {
                 position.y = this.targetPositionY;
@@ -46,6 +54,8 @@ public class CellStateMove : CellState
     public void FinishMove()
     {
         this.moving = false;
+        CellData cellData = this.cell.game.gameData.boardData.At(this.cell.x, this.cell.y);
+        cellData.forbidLink = false;
         this.cell.Idle();
         this.onMoveFinish?.Invoke(this.cell);
     }

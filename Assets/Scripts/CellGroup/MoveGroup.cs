@@ -9,46 +9,80 @@ public class MoveGroup
         this.game = game;
     }
 
-    public void OnFireFinish(List<Vector2Int> poses)
+    public void Move(List<Vector2Int> poses)
     {
         // Debug.Log("OnFireFinish");
 
+        // poses.Sort((a, b) => a.y - b.y); // y 小的在前
+
+        Board board = this.game.board;
         BoardData boardData = this.game.gameData.boardData;
 
-        var frees = new List<CellData>();
-        foreach (Vector2Int pos in poses)
-        {
-            frees.Add(boardData.Take(pos.x, pos.y));
-        }
+        // var frees = new List<CellData>();
+        // foreach (Vector2Int pos in poses)
+        // {
+        //     frees.Add(boardData.Take(pos.x, pos.y));
+        // }
 
-        int freeIndex = 0;
+        // int freeIndex = 0;
 
+        var emptyY = new HashSet<int>();
         for (int i = 0; i < boardData.width; i++)
         {
+            emptyY.Clear();
+            foreach (Vector2Int pos in poses)
+            {
+                if (pos.x == i)
+                {
+                    emptyY.Add(pos.y);
+                }
+            }
+
+            float topY = 3f;
+
             for (int j = 0; j < boardData.height; j++)
             {
-                if (boardData.At(i, j) == null)
+                if (!emptyY.Contains(j))
                 {
-                    bool found = false;
-                    for (int j2 = j + 1; j2 < boardData.height; j2++)
+                    continue;
+                }
+
+                bool found = false;
+                int j2;
+                for (j2 = j + 1; j2 < boardData.height; j2++)
+                {
+                    if (!emptyY.Contains(j2))
                     {
-                        // (i, j2) -> (i, j)
-                        if (boardData.At(i, j2) != null)
-                        {
-                            boardData.Put(i, j, boardData.Take(i, j2));
-                            found = true;
-                            break;
-                        }
+                        found = true;
+                        break;
                     }
-                    if (!found)
-                    {
-                        Debug.Assert(frees.Count > 0);
-                        CellData free = frees[frees.Count - 1];
-                        frees.RemoveAt(frees.Count - 1);
-                        boardData.Put(i, j, free);
-                    }
+                }
+
+                if (found)
+                {
+                    boardData.Swap(i, j, i, j2);
+                    board.Swap(i, j, i, j2);
+                    emptyY.Remove(j);
+                    emptyY.Add(j2);
+
+                    Cell cell = board.At(i, j);
+                    cell.Move(cell.transform.position.y, board.GetPosition(i, j).y, OnCellMoveFinish);
+                }
+                else
+                {
+                    CellData cellData = boardData.At(i, j);
+                    cellData.shape = this.game.gameData.RandomShape();
+
+                    Cell cell = board.At(i, j);
+                    cell.Move(topY, board.GetPosition(i, j).y, this.OnCellMoveFinish);
+                    topY += 1.3f;
                 }
             }
         }
+    }
+
+    void OnCellMoveFinish(Cell _cell)
+    {
+
     }
 }

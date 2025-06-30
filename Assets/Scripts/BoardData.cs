@@ -28,19 +28,16 @@ public class BoardData
         return this.cells[x, y];
     }
 
-    public CellData Take(int x, int y)
+    public void Swap(int fromX, int fromY, int toX, int toY)
     {
-        CellData cellData = this.cells[x, y];
-        Debug.Assert(cellData != null);
+        CellData from = this.cells[fromX, fromY];
+        Debug.Assert(from != null);
 
-        this.cells[x, y] = null;
-        return cellData;
-    }
+        CellData to = this.cells[toX, toY];
+        Debug.Assert(to != null);
 
-    public void Put(int x, int y, CellData cellData)
-    {
-        Debug.Assert(this.cells[x, y] == null);
-        this.cells[x, y] = cellData;
+        this.cells[fromX, fromY] = to;
+        this.cells[toX, toY] = from;
     }
 
     public PreviewGroupData currentPreviewGroupData

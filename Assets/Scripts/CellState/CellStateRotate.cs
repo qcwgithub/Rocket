@@ -36,7 +36,7 @@ public class CellStateRotate : CellState
         this.targetRotation = this.startRotation * Quaternion.Euler(0f, 0f, rotateDir == RotateDir.CW ? -90f : 90f);
         this.onRotateFinish = onFinish;
 
-        CellData cellData = this.cell.boardData.At(this.cell.x, this.cell.y);
+        CellData cellData = this.cell.game.gameData.boardData.At(this.cell.x, this.cell.y);
         this.overrideShape = cellData.shape;
 
         cellData.forbidLink = true;
@@ -64,7 +64,7 @@ public class CellStateRotate : CellState
         Debug.Assert(this.rotating);
         this.rotating = false;
 
-        CellData cellData = this.cell.boardData.At(this.cell.x, this.cell.y);
+        CellData cellData = this.cell.game.gameData.boardData.At(this.cell.x, this.cell.y);
         cellData.forbidLink = false;
 
         this.cell.transform.rotation = Quaternion.Euler(0f, 0f, 0f);

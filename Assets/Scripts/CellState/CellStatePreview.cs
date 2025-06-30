@@ -20,6 +20,7 @@ public class CellStatePreview : CellState
     Action<Cell> onPreviewFinish;
     public void Preview(Action<Cell> onFinish)
     {
+        // Debug.LogWarning($"CellStatePreview.Preview ({this.cell.x}, {this.cell.y})");
         Debug.Assert(!this.previewing);
         this.previewing = true;
         this.previewTimer = 0f;
@@ -32,7 +33,7 @@ public class CellStatePreview : CellState
         if (this.previewing)
         {
             this.previewTimer += dt;
-            float t = Mathf.Clamp01(this.previewTimer / 3f);
+            float t = Mathf.Clamp01(this.previewTimer / 0.2f);
 
             if (this.zoomIn)
             {
@@ -64,6 +65,7 @@ public class CellStatePreview : CellState
 
     public void CancelPreview()
     {
+        // Debug.LogWarning($"CellStatePreview.CancelPreview ({this.cell.x}, {this.cell.y})");
         Debug.Assert(this.previewing);
         this.previewing = false;
         this.cell.transform.localScale = Vector3.one;

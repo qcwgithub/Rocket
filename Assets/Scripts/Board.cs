@@ -13,26 +13,43 @@ public class Board : MonoBehaviour
         return this.cells[x, y];
     }
 
+    public void Swap(int fromX, int fromY, int toX, int toY)
+    {
+        Cell from = this.cells[fromX, fromY];
+        Debug.Assert(from != null);
+
+        Cell to = this.cells[toX, toY];
+        Debug.Assert(to != null);
+
+        from.x = toX;
+        from.y = toY;
+
+        to.x = fromX;
+        to.y = fromY;
+
+        this.cells[fromX, fromY] = to;
+        this.cells[toX, toY] = from;
+    }
+
     public int width
     {
         get
         {
-            return this.boardData.width;
+            return this.game.gameData.boardData.width;
         }
     }
     public int height
     {
         get
         {
-            return this.boardData.height;
+            return this.game.gameData.boardData.height;
         }
     }
 
-    public BoardData boardData;
-    public void Init(BoardData boardData)
+    public Game game;
+    public void Init(Game game)
     {
-        this.boardData = boardData;
-
+        this.game = game;
         for (int i = 0; i < this.transform.childCount; i++)
         {
             Transform child = this.transform.GetChild(i);
@@ -55,7 +72,7 @@ public class Board : MonoBehaviour
                 Cell cell = this.cells[i, j] = this.transform.GetChild(index++).GetComponent<Cell>();
                 cell.gameObject.SetActive(true);
                 // cell.gameObject.name = $"({i},{j})";
-                cell.Init(boardData, i, j);
+                cell.Init(this.game, i, j);
 
                 cell.transform.position = this.GetPosition(i, j);
             }

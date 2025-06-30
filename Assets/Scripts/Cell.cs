@@ -14,7 +14,7 @@ public enum CellSyncPart
 public class Cell : MonoBehaviour
 {
     public SpriteRenderer spriteRenderer;
-    public BoardData boardData;
+    public Game game;
     public int x;
     public int y;
     public CellStateIdle stateIdle = new CellStateIdle();
@@ -23,9 +23,9 @@ public class Cell : MonoBehaviour
     public CellStateFire stateFire = new CellStateFire();
     public CellStateMove stateMove = new CellStateMove();
     public CellState state;
-    public void Init(BoardData boardData, int x, int y)
+    public void Init(Game game, int x, int y)
     {
-        this.boardData = boardData;
+        this.game = game;
         this.x = x;
         this.y = y;
 
@@ -95,7 +95,7 @@ public class Cell : MonoBehaviour
 
     public void Refresh()
     {
-        CellData cellData = this.boardData.At(this.x, this.y);
+        CellData cellData = this.game.gameData.boardData.At(this.x, this.y);
 
         this.RefreshName(this.x, this.y, cellData.shape);
         this.RefreshSprite(this.state.OverrideSpriteShape(out Shape overrideShape) ? overrideShape : cellData.shape);
@@ -144,6 +144,13 @@ public class Cell : MonoBehaviour
         this.state = this.statePreview;
         this.statePreview.Preview(onFinish);
     }
+
+    public void Move(float fromPositionY, float toPositionY, Action<Cell> onFinish)
+    {
+        this.state = this.stateMove;
+        this.stateMove.Move(fromPositionY, toPositionY, onFinish);
+    }
+
     public void Idle()
     {
         this.state = this.stateIdle;
