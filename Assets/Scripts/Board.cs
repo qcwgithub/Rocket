@@ -12,6 +12,10 @@ public class Board : MonoBehaviour
     {
         return this.cells[x, y];
     }
+    public Cell At(Vector2Int pos)
+    {
+        return this.cells[pos.x, pos.y];
+    }
 
     public void Swap(int fromX, int fromY, int toX, int toY)
     {
@@ -47,9 +51,11 @@ public class Board : MonoBehaviour
     }
 
     public Game game;
+    public BoardData boardData;
     public void Init(Game game)
     {
         this.game = game;
+        this.boardData = game.gameData.boardData;
         for (int i = 0; i < this.transform.childCount; i++)
         {
             Transform child = this.transform.GetChild(i);

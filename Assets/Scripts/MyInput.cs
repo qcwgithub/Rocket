@@ -9,67 +9,110 @@ public class MyInput
         this.game = game;
     }
 
-    List<Vector2Int> swipeHistory = new List<Vector2Int>();
-    public void MyUpdate(float dt)
+    Vector2Int GetMousePos()
     {
-        bool clickL = Input.GetMouseButtonDown(0);
-        bool clickR = Input.GetMouseButtonDown(1);
-        if (!clickL && !clickR)
-        {
-            this.swipeHistory.Clear();
-            return;
-        }
-
         Board board = this.game.board;
 
-        bool inRange = false;
-        Vector2Int pos = Vector2Int.zero;
+        Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        float x = mousePos.x;
+        float y = mousePos.y;
+
+        int i = (int)(x - -board.width * 0.5f);
+        int j = (int)(y - -board.height * 0.5f);
+        return new Vector2Int(i, j);
+
+        // if (x > -board.width * 0.5f && x < board.width * 0.5f)
+        // {
+        //     if (y > -board.height * 0.5f && y < board.height * 0.5f)
+        //     {
+
+        //         pos.x = i;
+        //         pos.y = j;
+
+        //         return true;
+        //     }
+        // }
+
+        // return false;
+    }
+
+    void MyUpdate_R(float dt)
+    {
+        bool clickR = Input.GetMouseButtonDown(1);
+        if (!clickR)
         {
-            Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-            float x = mousePos.x;
-            float y = mousePos.y;
-            if (x > -board.width * 0.5f && x < board.width * 0.5f)
-            {
-                if (y > -board.height * 0.5f && y < board.height * 0.5f)
-                {
-                    int i = (int)(x - -board.width * 0.5f);
-                    int j = (int)(y - -board.height * 0.5f);
-
-                    inRange = true;
-                    pos.x = i;
-                    pos.y = j;
-                }
-            }
-        }
-
-        if (!inRange)
-        {
-            this.swipeHistory.Clear();
             return;
         }
 
-        if (clickR)
+        Vector2Int pos = this.GetMousePos();
+        if (this.game.board.boardData.InRange(pos))
         {
             this.game.OnClick(pos.x, pos.y, RotateDir.CW);
-            return;
         }
+    }
 
-        if (this.swipeHistory.Count == 0)
+    List<Vector2Int> swipePoses = new List<Vector2Int>();
+    List<Dir?> swipeDirs = new List<Dir?>();
+    bool leftDown;
+    void MyUpdate_L(float dt)
+    {
+        if (Input.GetMouseButtonUp(0))
         {
-            this.swipeHistory.Add(pos);
+            this.leftDown = false;
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            this.leftDown = true;
+        }
+
+        if (!this.leftDown)
+        {
+            this.swipePoses.Clear();
+            this.swipeDirs.Clear();
             return;
         }
 
-        Vector2Int last = this.swipeHistory[this.swipeHistory.Count - 1];
-        if (last == pos)
+        Vector2Int pos = this.GetMousePos();
+        bool inRange = this.game.board.boardData.InRange(pos);
+
+        if (this.swipePoses.Count == 0)
+        {
+            if (inRange)
+            {
+                this.swipePoses.Add(pos);
+                this.swipeDirs.Add(null);
+            }
+            return;
+        }
+
+        Vector2Int prevPos = this.swipePoses[this.swipePoses.Count - 1];
+        if (prevPos == pos)
         {
             return;
         }
 
-        Dir dir = DirExt.FromOffset(pos - last);
-        this.game.OnSwipe(last.x, last.y, dir);
+        Dir? prevDir = this.swipeDirs[this.swipeDirs.Count - 1];
 
-        this.swipeHistory.Add(pos);
+        Dir dir = DirExt.FromOffset(pos - prevPos);
+        this.game.OnSwipe(prevDir, prevPos, dir);
+
+        if (inRange)
+        {
+            this.swipePoses.Add(pos);
+            this.swipeDirs.Add(dir);
+        }
+        else
+        {
+            this.swipePoses.Clear();
+            this.swipeDirs.Clear();
+        }
+    }
+
+    public void MyUpdate(float dt)
+    {
+        this.MyUpdate_L(dt);
+        this.MyUpdate_R(dt);
     }
 }

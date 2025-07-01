@@ -124,6 +124,58 @@ public static class ShapeExt
         return settings;
     }
 
+    public static bool CanLinkTo(this Shape e, Dir toDir, out bool needRotate, out RotateDir rotateDir)
+    {
+        needRotate = false;
+        rotateDir = default;
+
+        if (e.GetSettings().linkedDirs.Contains(toDir))
+        {
+            needRotate = false;
+            return true;
+        }
+
+        for (RotateDir rd = 0; rd < RotateDir.Count; rd++)
+        {
+            Shape e2 = e.GetSettings().GetRotateResult(rd);
+            if (e2.GetSettings().linkedDirs.Contains(toDir))
+            {
+                needRotate = true;
+                rotateDir = rd;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static bool CanLinkTo(this Shape e, Dir toDir, Dir toDir2, out bool needRotate, out RotateDir rotateDir)
+    {
+        needRotate = false;
+        rotateDir = default;
+
+        if (e.GetSettings().linkedDirs.Contains(toDir) &&
+            e.GetSettings().linkedDirs.Contains(toDir2))
+        {
+            needRotate = false;
+            return true;
+        }
+
+        for (RotateDir rd = 0; rd < RotateDir.Count; rd++)
+        {
+            Shape e2 = e.GetSettings().GetRotateResult(rd);
+            if (e2.GetSettings().linkedDirs.Contains(toDir) &&
+                e2.GetSettings().linkedDirs.Contains(toDir2))
+            {
+                needRotate = true;
+                rotateDir = rd;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     static bool Linked_L(this Shape e)
     {
         switch (e)

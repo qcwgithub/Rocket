@@ -12,6 +12,21 @@ public enum Dir
 
 public static class DirExt
 {
+    public static Dir Reverse(this Dir e)
+    {
+        switch (e)
+        {
+            case Dir.L:
+                return Dir.R;
+            case Dir.R:
+                return Dir.L;
+            case Dir.T:
+                return Dir.B;
+            case Dir.B:
+            default:
+                return Dir.T;
+        }
+    }
     public static Dir FromOffset(Vector2Int offset)
     {
         int x = offset.x;

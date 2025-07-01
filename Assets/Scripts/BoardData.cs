@@ -27,6 +27,20 @@ public class BoardData
     {
         return this.cells[x, y];
     }
+    public CellData At(Vector2Int pos)
+    {
+        return this.cells[pos.x, pos.y];
+    }
+
+    public bool InRange(int x, int y)
+    {
+        return x >= 0 && x < this.width && y >= 0 && y < this.height;
+    }
+
+    public bool InRange(Vector2Int pos)
+    {
+        return this.InRange(pos.x, pos.y);
+    }
 
     public void Swap(int fromX, int fromY, int toX, int toY)
     {

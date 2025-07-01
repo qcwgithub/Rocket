@@ -4,6 +4,8 @@ public enum RotateDir
     CCW,
     CW2,
     CCW2,
+
+    Count,
 }
 
 public static class RotateDirExt

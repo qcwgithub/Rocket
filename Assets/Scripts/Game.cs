@@ -109,23 +109,48 @@ public class Game : MonoBehaviour
         this.HandleDirty();
     }
 
-    public void OnSwipe(int x, int y, Dir dir)
+    public void OnSwipe(Dir? prevDir, Vector2Int prevPos, Dir dir)
     {
-        Cell cell = this.board.At(x, y);
+        Debug.Log($"OnSwipe {prevDir} {prevPos} {dir}");
 
-        Vector2Int offset = dir.ToOffset();
-        int x2 = x + offset.x;
-        int y2 = y + offset.y;
-        Cell cell2 = this.board.At(x2, y2);
+        bool dirty = false;
 
-        if (cell.state.AskRotate())
+        // 1
+
+        Cell cell1 = this.board.At(prevPos);
+        CellData data1 = this.gameData.boardData.At(prevPos);
+
+        bool needRotate1;
+        RotateDir rotateDir1;
+        bool canLink1 = prevDir == null
+            ? data1.shape.CanLinkTo(dir, out needRotate1, out rotateDir1)
+            : data1.shape.CanLinkTo(dir, prevDir.Value.Reverse(), out needRotate1, out rotateDir1);
+        if (canLink1 && needRotate1 && cell1.state.AskRotate())
         {
-
+            cell1.Rotate(rotateDir1, this.OnCellRotateFinish);
+            dirty = true;
         }
 
-        if (cell2.state.AskRotate())
+        // 2
+
+        Vector2Int pos2 = prevPos + dir.ToOffset();
+        if (this.board.boardData.InRange(pos2))
         {
-            
+            Cell cell2 = this.board.At(pos2);
+            CellData data2 = this.gameData.boardData.At(pos2);
+
+            bool canLinkTo2 = data2.shape.CanLinkTo(dir.Reverse(), out bool needRotate2, out RotateDir rotateDir2);
+            if (canLinkTo2 && needRotate2 && cell2.state.AskRotate())
+            {
+                cell2.Rotate(rotateDir2, this.OnCellRotateFinish);
+                dirty = true;
+            }
+        }
+
+        if (dirty)
+        {
+            this.SetDirty();
+            this.HandleDirty();
         }
     }
 
