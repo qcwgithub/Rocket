@@ -3,8 +3,9 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-    public Board board;
     public GameData gameData;
+    public Board board;
+    public List<Rocket> rockets = new List<Rocket>();
     public MyInput myInput = new MyInput();
     public PreviewGroup previewGroup = new PreviewGroup();
     public FireGroup fireGroup = new FireGroup();
@@ -12,8 +13,11 @@ public class Game : MonoBehaviour
     public void Init(GameData gameData)
     {
         this.gameData = gameData;
-        this.myInput.Init(this);
         this.board.Init(this);
+
+        this.rockets.Clear();
+
+        this.myInput.Init(this);
         this.previewGroup.Init(this);
         this.fireGroup.Init(this);
         this.moveGroup.Init(this);

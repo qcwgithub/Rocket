@@ -1,7 +1,10 @@
+using System.Collections.Generic;
+
 public class GameData
 {
     public BoardData boardData;
     public System.Random random;
+    public List<RocketData> rocketDatas = new List<RocketData>();
     public void Init()
     {
         this.random = new System.Random(1);
@@ -20,8 +23,21 @@ public class GameData
             }
         }
 
+        this.rocketDatas.Clear();
+        for (int y = 0; y < levelConfig.height; y++)
+        {
+            RocketData rocketData = new RocketData();
+            rocketData.level = this.RandomRocketLevel();
+            this.rocketDatas.Add(rocketData);
+        }
+
         // Alg.RefreshLink(boardData);
         this.RefreshLink();
+    }
+
+    public int RandomRocketLevel()
+    {
+        return 1;
     }
 
     public Shape RandomShape()
